@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.terma.m</groupId>
         <artifactId>m</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>0.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>m-server</artifactId>
@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>com.github.terma.m</groupId>
-            <artifactId>shared</artifactId>
+            <artifactId>m-shared</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
