@@ -91,7 +91,7 @@ public class NodeRunner {
             channelSftp.disconnect();
 
             LOGGER.info("Executing start node script...");
-            executeAndLastOut(session, "cd " + remoteDir + " && ./m-node.sh \"" + server.host + "\" " + server.port);
+            executeAndLastOut(session, "cd " + remoteDir + " && ./m-node.sh");
         } finally {
             session.disconnect();
         }

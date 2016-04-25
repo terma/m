@@ -1,3 +1,19 @@
+/*
+
+    Copyright 2016 Artem Stasiuk
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package com.github.terma.m.node;
 
 import com.github.terma.m.shared.CheckConfig;
@@ -73,46 +89,55 @@ public class Node {
         List<Checker> checkers = new ArrayList<>();
         for (CheckConfig checkConfig : nodeConfig.checks) {
             if (checkConfig.name.equals("host.mem")) {
-                checkers.add(new HostMem());
+                checkers.add(new HostMem(nodeConfig.host));
             } else if (checkConfig.name.equals("host.cpu")) {
-                checkers.add(new HostCpu());
+                checkers.add(new HostCpu(nodeConfig.host));
             } else if (checkConfig.name.equals("host.net")) {
-                checkers.add(new HostNet());
+                checkers.add(new HostNet(nodeConfig.host));
             } else if (checkConfig.name.equals("jvm")) {
-                checkers.add(new Jvm(checkConfig.processPattern));
+                checkers.add(new Jvm(nodeConfig.host, checkConfig.processPattern));
             }
         }
         return checkers;
     }
 
-    interface Checker {
-        List<Event> get() throws Exception;
-    }
+    static class HostMem extends HostAwareChecker {
 
-    static class HostMem implements Checker {
+        HostMem(String host) {
+            super(host);
+        }
+
         public List<Event> get() throws Exception {
             return Arrays.asList(
-                    new Event("host.mem.used", sigar.getMem().getUsed()),
-                    new Event("host.mem.total", sigar.getMem().getTotal()),
-                    new Event("host.swap.used", sigar.getSwap().getUsed())
+                    new Event(host + ".host.mem.used", sigar.getMem().getUsed()),
+                    new Event(host + ".host.mem.total", sigar.getMem().getTotal()),
+                    new Event(host + ".host.swap.used", sigar.getSwap().getUsed())
             );
         }
     }
 
-    static class HostNet implements Checker {
+    static class HostNet extends HostAwareChecker {
+        HostNet(String host) {
+            super(host);
+        }
+
         public List<Event> get() throws Exception {
             long total = 0;
             for (String intr : sigar.getNetInterfaceList()) {
                 NetInterfaceStat stat = sigar.getNetInterfaceStat(intr);
                 total += stat.getRxBytes() + stat.getTxBytes();
             }
-            return singletonList(new Event("host.net.total", total));
+            return singletonList(new Event(host + ".host.net.total", total));
         }
     }
 
-    static class HostCpu implements Checker {
+    static class HostCpu extends HostAwareChecker {
+        HostCpu(String host) {
+            super(host);
+        }
+
         public List<Event> get() throws Exception {
-            return singletonList(new Event("host.cpu", Math.round(sigar.getCpuPerc().getCombined() * 100)));
+            return singletonList(new Event(host + ".host.cpu", Math.round(sigar.getCpuPerc().getCombined() * 100)));
         }
     }
 

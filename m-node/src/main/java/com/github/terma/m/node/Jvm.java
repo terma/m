@@ -1,3 +1,19 @@
+/*
+
+    Copyright 2016 Artem Stasiuk
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 package com.github.terma.m.node;
 
 import com.github.terma.m.shared.Event;
@@ -17,18 +33,15 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class Jvm implements Node.Checker {
+class Jvm extends HostAwareChecker {
 
     private final Sigar sigar = new Sigar();
     private final Pattern processPattern;
     private final Pattern jmxPortPattern = Pattern.compile("-Dcom.sun.management.jmxremote.port=(\\d+)");
 
-    public Jvm(String processPattern) {
+    public Jvm(String host, String processPattern) {
+        super(host);
         this.processPattern = Pattern.compile(processPattern);
-    }
-
-    public static void main(String[] args) throws Exception {
-        System.out.println(new Jvm("-Dname=(SERVE.+)").get());
     }
 
     private Map<String, String> findJmxPorts() throws SigarException {
@@ -77,16 +90,16 @@ class Jvm implements Node.Checker {
             final ObjectName memObjectName = new ObjectName("java.lang:type=Memory");
 
             final CompositeDataSupport heapMemoryUsage = (CompositeDataSupport) mMBSC.getAttribute(memObjectName, "HeapMemoryUsage");
-            events.add(new Event(appAndJmxPort.getKey() + ".jvm.mem.heap.total", (Long) heapMemoryUsage.get("max")));
-            events.add(new Event(appAndJmxPort.getKey() + ".jvm.mem.heap.used", (Long) heapMemoryUsage.get("used")));
+            events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.heap.total", (Long) heapMemoryUsage.get("max")));
+            events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.heap.used", (Long) heapMemoryUsage.get("used")));
 
             final CompositeDataSupport nonHeapMemoryUsage = (CompositeDataSupport) mMBSC.getAttribute(memObjectName, "NonHeapMemoryUsage");
-            events.add(new Event(appAndJmxPort.getKey() + ".jvm.mem.nonheap.total", (Long) nonHeapMemoryUsage.get("max")));
-            events.add(new Event(appAndJmxPort.getKey() + ".jvm.mem.nonheap.used", (Long) nonHeapMemoryUsage.get("used")));
+            events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.nonheap.total", (Long) nonHeapMemoryUsage.get("max")));
+            events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.nonheap.used", (Long) nonHeapMemoryUsage.get("used")));
 
             final ObjectName cpuObjectName = new ObjectName("java.lang:type=OperatingSystem");
             final long cpuLoad = Math.round(((Double) mMBSC.getAttribute(cpuObjectName, "ProcessCpuLoad")) * 100);
-            events.add(new Event(appAndJmxPort.getKey() + ".jvm.cpu", cpuLoad));
+            events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.cpu", cpuLoad));
         }
         return events;
     }
