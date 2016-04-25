@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>M</title>
+    <link href="c3-0.4.10/c3.min.css" rel="stylesheet" type="text/css">
+    <script src="c3-0.4.10/d3.min.js"></script>
+    <script src="c3-0.4.10/c3.js"></script>
+    <script src="jquery/jquery-1.11.3.js"></script>
+    <script>
+
+        var timestamp = Date.now();
+
+        var charts = [
+            {title: 'JVM Heap', metrics: 'jvm.mem', format: 'byte'},
+            {title: 'JVM CPU', metrics: 'jvm.cpu'},
+            {title: 'Host CPU', metrics: 'host.cpu'},
+            {title: 'Host Mem', metrics: 'host.mem', format: 'byte'},
+            {title: 'Host Net', metrics: 'host.net', format: 'byte'},
+            {title: 'Host Swap', metrics: 'host.swap', format: 'byte'}
+        ];
+
+        function init() {
+            $('#charts').empty();
+            var width = $('#charts').innerWidth();
+
+            charts.forEach(function (chart) {
+                var chartDiv = $('<div></div>');
+
+                chart.timestamps = ['x'];
+                chart.values = [];
+                chart.chart = c3.generate({
+                    bindto: chartDiv[0],
+                    data: {x: 'x', columns: [], xFormat: null},
+                    axis: {
+                        x: {type: 'timeseries', tick: {format: '%HH:%MM:%SS'}},
+                        y: {
+                            tick: {
+                                format: function (d) {
+                                    if (chart.format === 'byte') {
+                                        // todo replace dynamic switch on static function for format
+                                        if (d > 1024 * 1024 * 1024)return Math.round(d / 1024 / 1024 / 1024) + ' Gb';
+                                        else if (d > 1024 * 1024)return Math.round(d / 1024 / 1024) + ' Mb';
+                                        else if (d > 1024) return Math.round(d / 1024) + ' Kb';
+                                        return d + ' byte';
+                                    }
+                                    return d;
+                                }
+                            }
+                        }
+                    },
+                    size: {height: 200, width: width}
+                });
+
+                var chartContainer = $('<div></div>');
+                chartContainer.append('<h3>' + chart.title + '</h3>');
+                chartContainer.append(chartDiv);
+
+                $('#charts').append(chartContainer);
+            })
+        }
+
+        function load() {
+            d3.json('/data?timestamp=' + timestamp, function (error, json) {
+                if (error) return console.warn(error);
+
+                json.forEach(function (event) {
+                    timestamp = Math.max(timestamp, event.timestamp); // keep max timestamp
+
+                    function findChart(metric) {
+                        // todo match by regex for flexibility
+                        for (var i = 0; i < charts.length; i++) {
+                            if (metric.indexOf(charts[i].metrics) > -1) return charts[i];
+                        }
+                    }
+
+                    function findValuesOrCreate(chart, metric) {
+                        for (var j = 0; j < chart.values.length; j++) {
+                            if (chart.values[j][0] === metric) return chart.values[j];
+                        }
+
+                        values = [metric];
+                        chart.values.push(values);
+                        return values;
+                    }
+
+                    var chart = findChart(event.metric);
+                    if (chart) {
+                        chart.timestamps.push(event.timestamp);
+                        var values = findValuesOrCreate(chart, event.metric);
+                        values.push(event.value);
+                    }
+
+                    // todo currently it's possible get event for which I don't have chart
+                    // todo better don't send this info to client
+                });
+
+                charts.forEach(function (chart) {
+                    var columns = [chart.timestamps];
+                    chart.values.forEach(function (values) {
+                        columns.push(values)
+                    });
+                    chart.chart.load({columns: columns});
+                });
+            })
+        }
+
+        function resize() {
+            var width = $('#charts').innerWidth();
+            charts.forEach(function (chart) {
+                chart.chart.resize({width: width, height: 200});
+            });
+        }
+
+        $(document).ready(function () {
+            init();
+            load();
+
+            window.setInterval(function () {
+                load();
+            }, 5000);
+
+            $(window).resize(resize);
+
+            $('#reset').click(init);
+        });
+    </script>
+    <style type="text/css">
+
+        body, text {
+            font-family: Tahoma, SansSerif;
+        }
+
+        body {
+            padding: 5%;
+        }
+
+        #reset {
+            float: right;
+        }
+
+    </style>
+</head>
+<body>
+
+<div style="overflow: auto;">
+    <select>
+        <option>QA01</option>
+        <option>DEV3</option>
+    </select>
+
+    <button id="reset">Reset</button>
+</div>
+
+<div id="charts"></div>
+</body>
+</html>
