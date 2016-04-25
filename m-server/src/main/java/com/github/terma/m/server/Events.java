@@ -23,24 +23,30 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+/**
+ * Thread safe
+ */
 class Events {
 
-    public static final CopyOnWriteArrayList<Event> events = new CopyOnWriteArrayList<>();
-
-    private static final Repo repo;
+    private static final CopyOnWriteArrayList<Event> EVENTS = new CopyOnWriteArrayList<>();
+    private static final Repo REPO;
 
     static {
         try {
-            repo = new Repo(Config.readConfig().dataPath);
-            events.addAll(repo.readEvents());
+            REPO = new Repo(Config.readConfig().dataPath);
+            EVENTS.addAll(REPO.readEvents());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void add(List<Event> newEvents) throws IOException {
-        repo.storeEvents(newEvents);
-        events.addAll(newEvents);
+    public static List<Event> get() {
+        return EVENTS;
+    }
+
+    public static synchronized void add(List<Event> newEvents) throws IOException {
+        REPO.storeEvents(newEvents);
+        EVENTS.addAll(newEvents);
     }
 
 }

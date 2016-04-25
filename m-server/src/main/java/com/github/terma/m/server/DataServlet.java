@@ -37,7 +37,7 @@ public class DataServlet extends HttpServlet {
         final List<Event> eventsToSend = new ArrayList<>();
         final long timestamp = Long.parseLong(timestampString);
 
-        for (Event event : Events.events) {
+        for (Event event : Events.get()) {
             // todo don't iterate just find first and copy other
             if (event.timestamp > timestamp) eventsToSend.add(event);
         }
