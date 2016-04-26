@@ -113,7 +113,7 @@
             var endParameter = end ? '&end=' + end : '';
             var startParameter = '?start=' + currentStart;
 
-            d3.json('/data' + startParameter + endParameter, function (error, json) {
+            d3.json('data' + startParameter + endParameter, function (error, json) {
                 if (error) return console.warn(error);
 
                 json.forEach(function (event) {
