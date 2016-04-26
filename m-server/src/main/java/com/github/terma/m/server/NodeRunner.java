@@ -50,6 +50,7 @@ public class NodeRunner {
     public static void safeStart(final Config server, NodeConfig nodeConfig) {
         nodeConfig.serverHost = server.host;
         nodeConfig.serverPort = server.port;
+        nodeConfig.serverContext = server.context;
 
         try {
             start(server, nodeConfig);

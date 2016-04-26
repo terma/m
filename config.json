@@ -2,6 +2,7 @@
   "dataPath": "/Users/terma/Projects/m/data.bin",
   "host": "localhost",
   "port": 8080,
+  "context": "/m",
   "nodes": [
     {
       "host": "localhost",

@@ -40,8 +40,8 @@ public class Node {
 
     private static Sigar sigar = new Sigar();
 
-    private static void send(String serverHost, int serverPort, List<Event> events) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL("http", serverHost, serverPort, "/node").openConnection();
+    private static void send(String serverHost, int serverPort, String context, List<Event> events) throws IOException {
+        HttpURLConnection connection = (HttpURLConnection) new URL("http", serverHost, serverPort, context + "/node").openConnection();
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "text/json");
@@ -62,17 +62,17 @@ public class Node {
 
         final List<Checker> checkers = buildCheckers(nodeConfig);
 
-        startCheck(nodeConfig.serverHost, nodeConfig.serverPort, checkers);
+        startCheck(nodeConfig.serverHost, nodeConfig.serverPort, nodeConfig.serverContext, checkers);
     }
 
-    private static void startCheck(String serverHost, int serverPort, List<Checker> checkers) {
+    private static void startCheck(String serverHost, int serverPort, String serverContext, List<Checker> checkers) {
         while (true) {
             try {
                 List<Event> events = new ArrayList<>();
                 for (Checker checker : checkers) {
                     events.addAll(checker.get());
                 }
-                send(serverHost, serverPort, events);
+                send(serverHost, serverPort, serverContext, events);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -111,7 +111,7 @@ public class Node {
             return Arrays.asList(
                     new Event(host + ".host.mem.used", sigar.getMem().getUsed()),
                     new Event(host + ".host.mem.total", sigar.getMem().getTotal()),
-                    new Event(host + ".host.swap.used", sigar.getSwap().getUsed())
+                    new Event(host + ".host.mem.swap.used", sigar.getSwap().getUsed())
             );
         }
     }
@@ -122,12 +122,17 @@ public class Node {
         }
 
         public List<Event> get() throws Exception {
-            long total = 0;
+            long tx = 0;
+            long rx = 0;
             for (String intr : sigar.getNetInterfaceList()) {
                 NetInterfaceStat stat = sigar.getNetInterfaceStat(intr);
-                total += stat.getRxBytes() + stat.getTxBytes();
+                tx += stat.getTxBytes();
+                rx += stat.getRxBytes();
             }
-            return singletonList(new Event(host + ".host.net.total", total));
+            return Arrays.asList(
+                    new Event(host + ".host.net.rx", rx),
+                    new Event(host + ".host.net.tx", tx)
+            );
         }
     }
 

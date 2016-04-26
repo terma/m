@@ -34,6 +34,7 @@ public class Config {
 
     public String host;
     public int port;
+    public String context;
     public String dataPath;
     public String user;
     public String privateKeyFile;
