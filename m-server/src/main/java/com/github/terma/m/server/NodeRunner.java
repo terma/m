@@ -51,6 +51,7 @@ public class NodeRunner {
         nodeConfig.serverHost = server.host;
         nodeConfig.serverPort = server.port;
         nodeConfig.serverContext = server.context;
+        nodeConfig.secToRefresh = server.secToRefresh;
 
         try {
             start(server, nodeConfig);

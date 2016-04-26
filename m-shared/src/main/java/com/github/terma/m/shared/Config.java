@@ -35,6 +35,7 @@ public class Config {
     public String host;
     public int port;
     public String context;
+    public int secToRefresh = 5; // default value 5 sec
     public String dataPath;
     public String user;
     public String privateKeyFile;

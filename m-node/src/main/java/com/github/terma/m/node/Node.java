@@ -31,14 +31,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.singletonList;
 
 public class Node {
 
-    private static final long INTERVAL = 5000;
-
-    private static Sigar sigar = new Sigar();
+    private static final Sigar sigar = new Sigar();
 
     private static void send(String serverHost, int serverPort, String context, List<Event> events) throws IOException {
         HttpURLConnection connection = (HttpURLConnection) new URL("http", serverHost, serverPort, context + "/node").openConnection();
@@ -62,23 +61,23 @@ public class Node {
 
         final List<Checker> checkers = buildCheckers(nodeConfig);
 
-        startCheck(nodeConfig.serverHost, nodeConfig.serverPort, nodeConfig.serverContext, checkers);
+        startCheck(nodeConfig, checkers);
     }
 
-    private static void startCheck(String serverHost, int serverPort, String serverContext, List<Checker> checkers) {
+    private static void startCheck(NodeConfig nodeConfig, List<Checker> checkers) {
         while (true) {
             try {
                 List<Event> events = new ArrayList<>();
                 for (Checker checker : checkers) {
                     events.addAll(checker.get());
                 }
-                send(serverHost, serverPort, serverContext, events);
+                send(nodeConfig.serverHost, nodeConfig.serverPort, nodeConfig.serverContext, events);
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             try {
-                Thread.sleep(INTERVAL);
+                Thread.sleep(TimeUnit.SECONDS.toMillis(nodeConfig.secToRefresh));
             } catch (InterruptedException e) {
                 return;
             }

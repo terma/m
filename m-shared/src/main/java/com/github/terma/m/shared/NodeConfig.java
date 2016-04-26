@@ -25,6 +25,7 @@ public class NodeConfig {
     public String serverHost;
     public int serverPort;
     public String serverContext;
+    public int secToRefresh;
     public List<CheckConfig> checks = new ArrayList<>();
 
 }

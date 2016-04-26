@@ -3,6 +3,7 @@
   "host": "localhost",
   "port": 8080,
   "context": "/m",
+  "secToRefresh": 5,
   "nodes": [
     {
       "host": "localhost",
