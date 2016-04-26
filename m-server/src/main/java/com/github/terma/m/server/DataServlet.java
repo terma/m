@@ -32,14 +32,20 @@ public class DataServlet extends HttpServlet {
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        final String timestampString = request.getParameter("timestamp");
+        final String startString = request.getParameter("start");
+        final String endString = request.getParameter("end");
 
         final List<Event> eventsToSend = new ArrayList<>();
-        final long timestamp = Long.parseLong(timestampString);
+        if (startString == null) {
+            // nothing
+        } else {
+            long end = Long.MAX_VALUE;
+            if (endString != null) end = Long.parseLong(endString);
 
-        for (Event event : Events.get()) {
-            // todo don't iterate just find first and copy other
-            if (event.timestamp > timestamp) eventsToSend.add(event);
+            final long start = Long.parseLong(startString);
+            for (Event event : Events.get()) {
+                if (event.timestamp > start && event.timestamp <= end) eventsToSend.add(event);
+            }
         }
         response.getWriter().write(new Gson().toJson(eventsToSend));
     }

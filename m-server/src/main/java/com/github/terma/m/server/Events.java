@@ -33,8 +33,13 @@ class Events {
 
     static {
         try {
-            REPO = new Repo(Config.readConfig().dataPath);
-            EVENTS.addAll(REPO.readEvents());
+            final String dataPath = Config.readConfig().dataPath;
+            if (dataPath == null) {
+                REPO = null;
+            } else {
+                REPO = new Repo(dataPath);
+                EVENTS.addAll(REPO.readEvents());
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -45,7 +50,7 @@ class Events {
     }
 
     public static synchronized void add(List<Event> newEvents) throws IOException {
-        REPO.storeEvents(newEvents);
+        if (REPO != null) REPO.storeEvents(newEvents);
         EVENTS.addAll(newEvents);
     }
 

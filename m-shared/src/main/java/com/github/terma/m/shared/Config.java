@@ -17,16 +17,20 @@ limitations under the License.
 package com.github.terma.m.shared;
 
 import com.google.gson.Gson;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 
-import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Config {
 
     private static final String CONFIG_PATH_SYSTEM_PROPERTY = "m.config.path";
+    private static final String CLASSPATH_PREFIX = "classpath:";
+    private static final String FILE_PREFIX = "file:";
+    private static final String IGNORE_PREFIX = "ignore:";
 
     public String host;
     public int port;
@@ -37,11 +41,32 @@ public class Config {
 
     public static Config readConfig() {
         final String configPath = System.getProperty(CONFIG_PATH_SYSTEM_PROPERTY);
-        try {
-            return new Gson().fromJson(FileUtils.readFileToString(new File(configPath)), Config.class);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid path to config: " + configPath
-                    + " set by property -D" + CONFIG_PATH_SYSTEM_PROPERTY + "!", e);
+        if (configPath == null)
+            throw new IllegalArgumentException("No config property -D" + CONFIG_PATH_SYSTEM_PROPERTY);
+
+        if (configPath.startsWith(CLASSPATH_PREFIX)) {
+            InputStream inputStream = Config.class.getResourceAsStream(configPath.substring(CLASSPATH_PREFIX.length()));
+            if (inputStream == null) throw new IllegalArgumentException(
+                    "Can't find config in classpath by: " + configPath);
+
+            try {
+                return new Gson().fromJson(IOUtils.toString(inputStream), Config.class);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Invalid path to config: " + configPath
+                        + " set by property -D" + CONFIG_PATH_SYSTEM_PROPERTY + "!", e);
+            }
+        } else if (configPath.startsWith(FILE_PREFIX)) {
+            try {
+                return new Gson().fromJson(new FileReader(configPath.substring(FILE_PREFIX.length())), Config.class);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("Invalid path to config: " + configPath
+                        + " set by property -D" + CONFIG_PATH_SYSTEM_PROPERTY + "!", e);
+            }
+        } else if (configPath.startsWith(IGNORE_PREFIX)) {
+            // skip for test and other
+            return new Config();
+        } else {
+            throw new UnsupportedOperationException("Unsupported type of config path: " + configPath);
         }
     }
 }

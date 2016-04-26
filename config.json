@@ -1,0 +1,25 @@
+{
+  "dataPath": "/Users/terma/Projects/m/data.bin",
+  "host": "localhost",
+  "port": 8080,
+  "nodes": [
+    {
+      "host": "localhost",
+      "checks": [
+        {
+          "name": "host.mem"
+        },
+        {
+          "name": "host.cpu"
+        },
+        {
+          "name": "host.net"
+        },
+        {
+          "name": "jvm",
+          "processPattern": "-Dname=(SERVE.+)"
+        }
+      ]
+    }
+  ]
+}

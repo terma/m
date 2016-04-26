@@ -3,13 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <title>M</title>
-    <link href="c3-0.4.10/c3.min.css" rel="stylesheet" type="text/css">
-    <script src="c3-0.4.10/d3.min.js"></script>
-    <script src="c3-0.4.10/c3.js"></script>
-    <script src="jquery/jquery-1.11.3.js"></script>
+
+    <link href="vendor/c3-0.4.10/c3.min.css" rel="stylesheet" type="text/css">
+    <script src="vendor/c3-0.4.10/d3.min.js"></script>
+    <script src="vendor/c3-0.4.10/c3.js"></script>
+
+    <script src="vendor/jquery/jquery-1.11.3.js"></script>
+
+    <script src="vendor/moment/moment.js"></script>
     <script>
 
-        var timestamp = Date.now();
+        var start = void 0;
+        var currentStart = void 0;
+        var end = void 0;
 
         var charts = [
             {title: 'JVM Heap', metrics: 'jvm.mem', format: 'byte'},
@@ -20,7 +26,50 @@
             {title: 'Host Swap', metrics: 'host.swap', format: 'byte'}
         ];
 
-        function init() {
+        function resetPeriod() {
+            start = Date.now();
+            currentStart = start;
+            end = void 0;
+            $('#start').val(moment(start).format('YYYY-MM-DD HH:mm'));
+            $('#end').val(void 0);
+        }
+
+        function initAndLoadCharts() {
+            initCharts();
+            load();
+        }
+
+        function initPeriod() {
+            resetPeriod();
+            $('#start').change(function () {
+                var startMoment = moment.utc($('#start').val(), 'YYYY-MM-DD hh:mm');
+                if (startMoment.isValid()) {
+                    start = startMoment.valueOf();
+                    currentStart = start;
+                    initAndLoadCharts();
+                }
+            });
+
+            $('#end').change(function () {
+                var endValue = $('#end').val();
+                console.log(endValue);
+
+                if (endValue === '') {
+                    end = void 0;
+                    currentStart = start;
+                    initAndLoadCharts();
+                } else {
+                    var endMoment = moment.utc(endValue, 'YYYY-MM-DD hh:mm');
+                    if (endMoment.isValid()) {
+                        end = endMoment.valueOf();
+                        currentStart = start;
+                        initAndLoadCharts();
+                    }
+                }
+            });
+        }
+
+        function initCharts() {
             $('#charts').empty();
             var width = $('#charts').innerWidth();
 
@@ -33,7 +82,7 @@
                     bindto: chartDiv[0],
                     data: {x: 'x', columns: [], xFormat: null},
                     axis: {
-                        x: {type: 'timeseries', tick: {format: '%HH:%MM:%SS'}},
+                        x: {type: 'timeseries', tick: {format: d3.time.format.utc('%mm-%dd %HH:%MM:%SS')}},
                         y: {
                             tick: {
                                 format: function (d) {
@@ -61,11 +110,14 @@
         }
 
         function load() {
-            d3.json('/data?timestamp=' + timestamp, function (error, json) {
+            var endParameter = end ? '&end=' + end : '';
+            var startParameter = '?start=' + currentStart;
+
+            d3.json('/data' + startParameter + endParameter, function (error, json) {
                 if (error) return console.warn(error);
 
                 json.forEach(function (event) {
-                    timestamp = Math.max(timestamp, event.timestamp); // keep max timestamp
+                    currentStart = Math.max(currentStart, event.timestamp); // keep max timestamp
 
                     function findChart(metric) {
                         // todo match by regex for flexibility
@@ -113,8 +165,8 @@
         }
 
         $(document).ready(function () {
-            init();
-            load();
+            initPeriod();
+            initAndLoadCharts();
 
             window.setInterval(function () {
                 load();
@@ -122,7 +174,10 @@
 
             $(window).resize(resize);
 
-            $('#reset').click(init);
+            $('#reset').click(function () {
+                resetPeriod();
+                initAndLoadCharts();
+            });
         });
     </script>
     <style type="text/css">
@@ -144,6 +199,8 @@
 <body>
 
 <div style="overflow: auto;">
+    <input id="start" type="text"> - <input id="end" type="text" placeholder="future">
+
     <button id="reset">Reset</button>
 </div>
 

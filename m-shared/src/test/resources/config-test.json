@@ -1,0 +1,27 @@
+{
+  "dataPath": "data.bin",
+  "host": "localhost",
+  "port": 8080,
+  "nodes": [
+    {
+      "host": "localhost",
+      "checks": [
+        {
+          "name": "host.mem"
+        },
+        {
+          "name": "jvm",
+          "processPattern": "-Dname=(SERVE.+)"
+        }
+      ]
+    },
+    {
+      "host": "localhost1",
+      "checks": [
+        {
+          "name": "host.mem"
+        }
+      ]
+    }
+  ]
+}
