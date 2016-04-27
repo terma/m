@@ -23,9 +23,14 @@ import com.github.terma.m.shared.NodeConfig;
 import com.google.gson.Gson;
 import com.jcraft.jsch.*;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+import static com.github.terma.m.server.JschUtils.execute;
 
 
 public class NodeRunner {
@@ -36,6 +41,7 @@ public class NodeRunner {
         Config server = new Config();
         server.host = "localhost";
         server.port = 8080;
+        server.enableNodeLog = true;
 
         NodeConfig nodeConfig = new NodeConfig();
         nodeConfig.host = "localhost";
@@ -76,52 +82,33 @@ public class NodeRunner {
         session.setConfig("PreferredAuthentications", "publickey");
         session.connect();
 
+        final String remoteDir = "m-node-" + nodeConfig.host;
+
+        final InputStream zip = NodeRunner.class.getResourceAsStream("/m-node.zip");
+
         try {
-            LOGGER.info("Create host folder...");
-            final String remoteDir = "m-node-" + nodeConfig.host;
-            executeAndLastOut(session, "rm -Rf " + remoteDir + " && mkdir " + remoteDir);
-
-            InputStream zip = NodeRunner.class.getResourceAsStream("/m-node.zip");
-
             LOGGER.info("Copying node data...");
             final ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
             channelSftp.connect();
+            try {
+                channelSftp.mkdir(remoteDir);
+            } catch (SftpException e) {
+                // looks like dir already present, so just skip
+            }
             channelSftp.put(NodeRunner.class.getResourceAsStream("/m-node.sh"), remoteDir + "/m-node.sh");
             channelSftp.put(new ByteArrayInputStream(new Gson().toJson(nodeConfig).getBytes()), remoteDir + "/config.json");
             channelSftp.put(zip, remoteDir + "/m-node.zip");
             channelSftp.chmod(500, remoteDir + "/m-node.sh");
             channelSftp.disconnect();
 
+            String enableLogParameter = "";
+            if (server.enableNodeLog) enableLogParameter = " --enableLog";
+
             LOGGER.info("Executing start node script...");
-            executeAndLastOut(session, "cd " + remoteDir + " && ./m-node.sh");
+            execute(session, "cd " + remoteDir + " && ./m-node.sh" + enableLogParameter);
         } finally {
             session.disconnect();
         }
-    }
-
-    private static String executeAndLastOut(final Session session, final String command)
-            throws JSchException, IOException {
-        final ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
-        channelExec.setCommand(command + " 2>&1");
-
-        BufferedReader outReader = new BufferedReader(new InputStreamReader(channelExec.getInputStream()));
-
-        channelExec.connect();
-
-        String line;
-        String lastLine = "";
-        while ((line = outReader.readLine()) != null) {
-            lastLine = line;
-            LOGGER.info(line);
-        }
-        int exitCode = channelExec.getExitStatus();
-        channelExec.disconnect();
-
-        if (exitCode != 0) {
-            throw new RuntimeException("Non zero exit code: " + exitCode + " for command: " + command);
-        }
-
-        return lastLine;
     }
 
 }
