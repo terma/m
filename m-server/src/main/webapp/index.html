@@ -87,8 +87,8 @@
                                 format: function (d) {
                                     if (chart.format === 'byte') {
                                         // todo replace dynamic switch on static function for format
-                                        if (d > 1024 * 1024 * 1024)return Math.round(d / 1024 / 1024 / 1024) + ' Gb';
-                                        else if (d > 1024 * 1024)return Math.round(d / 1024 / 1024) + ' Mb';
+                                        if (d > 1024 * 1024 * 1024) return Math.round(d / 1024 / 1024 / 1024) + ' Gb';
+                                        else if (d > 1024 * 1024) return Math.round(d / 1024 / 1024) + ' Mb';
                                         else if (d > 1024) return Math.round(d / 1024) + ' Kb';
                                         return d + ' byte';
                                     }
@@ -97,7 +97,7 @@
                             }
                         }
                     },
-                    size: {height: 200, width: width}
+                    size: {height: 400, width: width}
                 });
 
                 var chartContainer = $('<div></div>');
