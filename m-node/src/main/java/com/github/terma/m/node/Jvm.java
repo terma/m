@@ -83,7 +83,6 @@ class Jvm extends HostAwareChecker {
         List<Event> events = new ArrayList<Event>();
 
         for (Map.Entry<String, String> appAndJmxPort : findJmxPorts().entrySet()) {
-            String host = "localhost";
             JMXServiceURL url = new JMXServiceURL("rmi", "", 0, "/jndi/rmi://" + host + ":" + appAndJmxPort.getValue() + "/jmxrmi");
             JMXConnector mConnector = JMXConnectorFactory.connect(url);
             MBeanServerConnection mMBSC = mConnector.getMBeanServerConnection();
