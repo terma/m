@@ -37,6 +37,7 @@ public class Config {
     public String context;
     public int secToRefresh = 5; // default value 5 sec
     public String dataPath;
+    public boolean enableNodeLog;
     public String user;
     public String privateKeyFile;
     public List<NodeConfig> nodes = new ArrayList<>();
