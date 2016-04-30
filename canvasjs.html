@@ -1,0 +1,72 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <script type="text/javascript">
+        window.onload = function () {
+            CanvasJS.addColorSet("greenShades",
+                    [//colorSet Array
+
+                        //"#2F4F4F",
+                        //"#008080",
+                        "#2E8B57",
+                        "#3CB371",
+                        "#90EE90"
+                    ]);
+
+            var dps = []; // dataPoints
+
+            var chart = new CanvasJS.Chart("chartContainer",{
+                colorSet: "greenShades",
+                zoomEnabled: true,
+                title :{
+                    //text: "Live Random Data"
+                },
+                data: [{
+                    type: "spline",
+                    dataPoints: dps
+                }]
+            });
+
+            var xVal = 0;
+            var yVal = 100;
+            var updateInterval = 1000;
+            var dataLength = 5000; // number of dataPoints visible at any point
+
+            var updateChart = function (count) {
+                count = count || 1;
+                // count is number of times loop runs to generate random dataPoints.
+
+                for (var j = 0; j < count; j++) {
+                    yVal = yVal +  Math.round(5 + Math.random() *(-5-5));
+                    dps.push({
+                        x: xVal,
+                        y: yVal
+                    });
+                    xVal++;
+                };
+                if (dps.length > dataLength)
+                {
+                    //dps.shift();
+                }
+
+                chart.render();
+
+            };
+
+            // generates first set of dataPoints
+            //updateChart(dataLength);
+
+            // update chart after specified time.
+            //setInterval(function(){updateChart()}, updateInterval);
+
+        }
+    </script>
+    <script type="text/javascript" src="/assets/script/canvasjs.min.js"></script>
+</head>
+<body>
+<div id="chartContainer" style="height: 300px; width:100%;">
+</div>
+</body>
+</html>
+q
