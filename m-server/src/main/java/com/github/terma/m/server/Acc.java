@@ -16,11 +16,16 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
+@SuppressWarnings("WeakerAccess")
 class Acc {
 
     long timestamp;
     long value;
     int count;
+
+    public Acc(long timestamp) {
+        this.timestamp = timestamp;
+    }
 
     public long getAvg() {
         if (count == 0) return 0;

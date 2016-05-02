@@ -89,7 +89,7 @@ class Events {
         READ_LOCK.lock();
         try {
             final AbstractRequest[] where = {
-                    new LongBetweenRequest("timestamp", min, max),
+                    new LongBetweenRequest("timestamp", min, max - 1),
                     new ShortRequest("metricCode", findMetricCodes(pattern))
             };
             final DataCallback callback = new DataCallback(fastSelect, parts, min, max);

@@ -25,6 +25,7 @@ import com.github.terma.m.shared.Event;
 import java.util.HashMap;
 import java.util.Map;
 
+@SuppressWarnings("WeakerAccess")
 class DataCallback implements ArrayLayoutCallback {
 
     private final long[] values;
@@ -71,12 +72,10 @@ class DataCallback implements ArrayLayoutCallback {
     }
 
     private Acc[] createAccs() {
-        Acc[] accs = new Acc[parts];
-
+        final Acc[] accs = new Acc[parts + 1]; // add one acc w/o data for representation
         long timestamp = min;
         for (int i = 0; i < accs.length; i++) {
-            accs[i] = new Acc();
-            accs[i].timestamp = timestamp;
+            accs[i] = new Acc(timestamp);
             timestamp += del;
         }
         return accs;

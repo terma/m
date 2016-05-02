@@ -49,7 +49,8 @@ public class EventsTest {
                     put("a", Arrays.asList(
                             new Events.Point(50, 901),
                             new Events.Point(67, 0),
-                            new Events.Point(84, 0)
+                            new Events.Point(84, 0),
+                            new Events.Point(101, 0)
                     ));
                 }},
                 events.get(3, 50, 100, ""));
@@ -69,14 +70,36 @@ public class EventsTest {
                     put("a", Arrays.asList(
                             new Events.Point(50, 100),
                             new Events.Point(67, 0),
-                            new Events.Point(84, 0)
+                            new Events.Point(84, 0),
+                            new Events.Point(101, 0)
                     ));
                 }},
                 events.get(3, 50, 100, ""));
     }
 
     @Test
-    public void shouldFilterByMinMax() throws IOException {
+    public void shouldFilterByIncludeMinExcludeMax() throws IOException {
+        Events events = new Events(null);
+        events.add(Arrays.asList(
+                new Event("a", 49, 500),
+                new Event("a", 50, 1),
+                new Event("a", 100, 1)
+        ));
+
+        Assert.assertEquals(
+                new HashMap<String, List<Events.Point>>() {{
+                    put("a", Arrays.asList(
+                            new Events.Point(50, 1),
+                            new Events.Point(67, 0),
+                            new Events.Point(84, 0),
+                            new Events.Point(101, 0)
+                    ));
+                }},
+                events.get(3, 50, 100, ""));
+    }
+
+    @Test
+    public void shouldAlwaysReturnAtTheEndAdditionalNodeWithoutData() throws IOException {
         Events events = new Events(null);
         events.add(Arrays.asList(
                 new Event("a", 49, 500),
@@ -88,12 +111,13 @@ public class EventsTest {
         Assert.assertEquals(
                 new HashMap<String, List<Events.Point>>() {{
                     put("a", Arrays.asList(
+                            new Events.Point(25, 500),
                             new Events.Point(50, 1),
-                            new Events.Point(67, 0),
-                            new Events.Point(84, 1)
+                            new Events.Point(75, 0),
+                            new Events.Point(100, 0)
                     ));
                 }},
-                events.get(3, 50, 100, ""));
+                events.get(3, 25, 100, ""));
     }
 
     @Test
@@ -101,25 +125,25 @@ public class EventsTest {
         Events events = new Events(null);
         events.add(Arrays.asList(
                 new Event("metric.host1.b", 50, 1),
-                new Event("metric.host1.c.used", 100, 1)
+                new Event("metric.host1.c.used", 99, 1)
         ));
 
         Assert.assertEquals(Collections.EMPTY_MAP, events.get(3, 0, 200, "nona"));
         Assert.assertEquals(
                 new HashMap<String, List<Events.Point>>() {{
-                    put("metric.host1.b", Arrays.asList(new Events.Point(50, 1), new Events.Point(67, 0), new Events.Point(84, 0)));
-                    put("metric.host1.c.used", Arrays.asList(new Events.Point(50, 0), new Events.Point(67, 0), new Events.Point(84, 1)));
+                    put("metric.host1.b", Arrays.asList(new Events.Point(50, 1), new Events.Point(67, 0), new Events.Point(84, 0), new Events.Point(101, 0)));
+                    put("metric.host1.c.used", Arrays.asList(new Events.Point(50, 0), new Events.Point(67, 0), new Events.Point(84, 1), new Events.Point(101, 0)));
                 }},
                 events.get(3, 50, 100, ""));
         Assert.assertEquals(
                 new HashMap<String, List<Events.Point>>() {{
-                    put("metric.host1.b", Arrays.asList(new Events.Point(50, 1), new Events.Point(67, 0), new Events.Point(84, 0)));
-                    put("metric.host1.c.used", Arrays.asList(new Events.Point(50, 0), new Events.Point(67, 0), new Events.Point(84, 1)));
+                    put("metric.host1.b", Arrays.asList(new Events.Point(50, 1), new Events.Point(67, 0), new Events.Point(84, 0), new Events.Point(101, 0)));
+                    put("metric.host1.c.used", Arrays.asList(new Events.Point(50, 0), new Events.Point(67, 0), new Events.Point(84, 1), new Events.Point(101, 0)));
                 }},
                 events.get(3, 50, 100, null));
         Assert.assertEquals(
                 new HashMap<String, List<Events.Point>>() {{
-                    put("metric.host1.c.used", Arrays.asList(new Events.Point(50, 0), new Events.Point(67, 0), new Events.Point(84, 1)));
+                    put("metric.host1.c.used", Arrays.asList(new Events.Point(50, 0), new Events.Point(67, 0), new Events.Point(84, 1), new Events.Point(101, 0)));
                 }},
                 events.get(3, 50, 100, ".c"));
     }
