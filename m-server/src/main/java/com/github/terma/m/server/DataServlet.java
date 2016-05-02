@@ -23,26 +23,31 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 public class DataServlet extends HttpServlet {
 
-    private static final int PARTS = 50;
+    private static final int PARTS = 200;
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        final long min = Long.parseLong(request.getParameter("min"));
+        final String minString = request.getParameter("min");
         final String maxString = request.getParameter("max");
-        final String pattern = request.getParameter("pattern");
 
-        long max = System.currentTimeMillis();
-        if (maxString != null) max = Long.parseLong(maxString);
+        final long min = minString != null ? Long.parseLong(minString) : EventsFactory.get().min();
+        final long max = maxString != null ? Long.parseLong(maxString) : System.currentTimeMillis();
 
-        final Map<String, List<Events.Point>> events = EventsFactory.get().get(PARTS, min, max, pattern);
+        final String metric = request.getParameter("metric");
+        final String callback = request.getParameter("callback");
 
-        response.getWriter().write(new Gson().toJson(events));
+        final Map<String, List<Events.Point>> events = EventsFactory.get().get(PARTS, min, max, metric);
+
+        System.out.println("[" + new Date(min) + " : " + new Date(max) + "] events " + events.size());
+
+        response.getWriter().write(callback + "(" + new Gson().toJson(events) + ");");
     }
 
 }

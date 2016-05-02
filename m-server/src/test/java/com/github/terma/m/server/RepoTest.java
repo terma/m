@@ -16,12 +16,10 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
-import com.github.terma.m.server.Repo;
 import com.github.terma.m.shared.Event;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,7 +34,7 @@ public class RepoTest {
         Path d = Files.createTempDirectory("aaa");
         Repo repo = new Repo(d.toString());
 
-        repo.storeEvents(Collections.singletonList(new Event((short) 1, 12, 988)));
+        repo.addEvents(Collections.singletonList(new Event((short) 1, 12, 988)));
 
         Assert.assertEquals(
                 Collections.singletonList(new Event((short) 1, 12, 988)),

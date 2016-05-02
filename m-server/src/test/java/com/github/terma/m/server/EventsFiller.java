@@ -39,8 +39,11 @@ public class EventsFiller {
             buffer.add(new Event("yandex.ru.host.cpu", timestamp, random.nextInt(100)));
             buffer.add(new Event("127.0.0.1.host.cpu", timestamp, random.nextInt(100)));
             buffer.add(new Event("localhost.host.cpu", timestamp, random.nextInt(100)));
+            buffer.add(new Event("yandex.ru.jvm.mem.used", timestamp, random.nextInt(8000000)));
+            buffer.add(new Event("127.0.0.1.jvm.mem.used", timestamp, random.nextInt(8000000)));
+            buffer.add(new Event("localhost.jvm.mem.used", timestamp, random.nextInt(8000000)));
             timestamp += 1000;
-            i += 3;
+            i += 6;
 
             if (buffer.size() > 1000) flush(buffer, events);
         }

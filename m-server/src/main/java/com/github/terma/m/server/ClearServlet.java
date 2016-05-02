@@ -14,25 +14,20 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package com.github.terma.m;
+package com.github.terma.m.server;
 
-import com.github.terma.m.shared.Event;
-import com.github.terma.m.server.Repo;
-import org.junit.Test;
-
-import java.io.File;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 
-public class RepoTest {
+public class ClearServlet extends HttpServlet {
 
-    @Test
-    public void t() throws IOException {
-        File f = File.createTempFile("aaa", "bbb");
-        Repo repo = new Repo(f.getAbsolutePath());
-
-        repo.addEvents(Arrays.asList(new Event("a", 12)));
-        repo.readEvents();
+    @Override
+    protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
+        EventsFactory.get().clear();
     }
 
 }

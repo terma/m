@@ -37,7 +37,7 @@ public class DataServletTest {
     @Before
     public void init() {
         System.setProperty("m.config.path", "ignore:");
-        Events.get().clear();
+//        EventsFactory.get().clear();
     }
 
     @Test
@@ -51,7 +51,7 @@ public class DataServletTest {
 
     @Test
     public void whenOnlyStartSpecifiedProvideFromToFuture() throws ServletException, IOException {
-        Events.add(Arrays.asList(new Event("a", 4, 0), new Event("a1", 5, 0), new Event("b", 6, 0), new Event("c", Long.MAX_VALUE, 0)));
+        EventsFactory.get().add(Arrays.asList(new Event("a", 4, 0), new Event("a1", 5, 0), new Event("b", 6, 0), new Event("c", Long.MAX_VALUE, 0)));
 
         Mockito.when(request.getParameter("start")).thenReturn("5");
         Mockito.when(response.getWriter()).thenReturn(writer);
@@ -63,7 +63,7 @@ public class DataServletTest {
 
     @Test
     public void whenStartAndEndSpecifiedProvideInRange() throws ServletException, IOException {
-        Events.add(Arrays.asList(new Event("a", 4, 0), new Event("b", 5, 0), new Event("c", 6, 0), new Event("d", 7, 0)));
+        EventsFactory.get().add(Arrays.asList(new Event("a", 4, 0), new Event("b", 5, 0), new Event("c", 6, 0), new Event("d", 7, 0)));
 
         Mockito.when(request.getParameter("start")).thenReturn("5");
         Mockito.when(request.getParameter("end")).thenReturn("6");

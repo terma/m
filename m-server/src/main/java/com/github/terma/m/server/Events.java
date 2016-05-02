@@ -33,11 +33,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 class Events {
 
-    private final FastSelect<Event> fastSelect = new FastSelect<>(1000, Event.class,
-            Arrays.asList(
-                    new FastSelect.Column("metricCode", short.class, 300000),
-                    new FastSelect.Column("timestamp", long.class, 300000),
-                    new FastSelect.Column("value", long.class, 300000)));
     private final ReadWriteLock LOCK = new ReentrantReadWriteLock();
     private final Lock READ_LOCK = LOCK.readLock();
     private final Lock WRITE_LOCK = LOCK.writeLock();
@@ -45,20 +40,38 @@ class Events {
     private final Map<Short, String> codeToMetrics = new HashMap<>();
     private final Map<String, Short> metricToCodes = new HashMap<>();
 
-    public Events(String dataPath) {
+    // todo start use clear if implemented
+    // doesn't support clear so can't be final
+    private FastSelect<Event> fastSelect;
+
+    public Events(final String dataPath) {
+        WRITE_LOCK.lock();
         try {
-            if (dataPath == null) {
-                repo = null;
-            } else {
-                repo = new Repo(dataPath);
-                metricToCodes.putAll(repo.readMetricCodes());
-                for (Map.Entry<String, Short> p : metricToCodes.entrySet())
-                    codeToMetrics.put(p.getValue(), p.getKey());
-                fastSelect.addAll(repo.readEvents());
+            createFastSelect();
+            try {
+                if (dataPath == null) {
+                    repo = null;
+                } else {
+                    repo = new Repo(dataPath);
+                    metricToCodes.putAll(repo.readMetricCodes());
+                    for (Map.Entry<String, Short> p : metricToCodes.entrySet())
+                        codeToMetrics.put(p.getValue(), p.getKey());
+                    fastSelect.addAll(repo.readEvents());
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } finally {
+            WRITE_LOCK.unlock();
         }
+    }
+
+    private void createFastSelect() {
+        fastSelect = new FastSelect<>(1000, Event.class,
+                Arrays.asList(
+                        new FastSelect.Column("metricCode", short.class, 300000),
+                        new FastSelect.Column("timestamp", long.class, 300000),
+                        new FastSelect.Column("value", long.class, 300000)));
     }
 
     private int[] findMetricCodes(final String pattern) {
@@ -114,9 +127,36 @@ class Events {
 
             if (repo != null) {
                 repo.storeMetricCodes(metricToCodes);
-                repo.storeEvents(newEvents);
+                repo.addEvents(newEvents);
             }
             fastSelect.addAll(newEvents);
+        } finally {
+            WRITE_LOCK.unlock();
+        }
+    }
+
+    public long min() {
+        READ_LOCK.lock();
+        try {
+            final MinTimestampCallback callback = new MinTimestampCallback(fastSelect);
+            fastSelect.select(new AbstractRequest[0], callback);
+            return callback.getResult();
+        } finally {
+            READ_LOCK.unlock();
+        }
+    }
+
+    public void clear() {
+        WRITE_LOCK.lock();
+        try {
+            try {
+                repo.clear();
+            } catch (IOException exception) {
+                throw new RuntimeException(exception);
+            }
+            createFastSelect();
+            metricToCodes.clear();
+            codeToMetrics.clear();
         } finally {
             WRITE_LOCK.unlock();
         }

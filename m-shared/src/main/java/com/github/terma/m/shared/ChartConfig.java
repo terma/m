@@ -14,25 +14,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package com.github.terma.m;
+package com.github.terma.m.shared;
 
-import com.github.terma.m.shared.Event;
-import com.github.terma.m.server.Repo;
-import org.junit.Test;
+public class ChartConfig {
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-
-public class RepoTest {
-
-    @Test
-    public void t() throws IOException {
-        File f = File.createTempFile("aaa", "bbb");
-        Repo repo = new Repo(f.getAbsolutePath());
-
-        repo.addEvents(Arrays.asList(new Event("a", 12)));
-        repo.readEvents();
-    }
+    public String title;
+    public String metric;
 
 }

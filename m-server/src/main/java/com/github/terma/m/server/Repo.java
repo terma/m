@@ -33,57 +33,52 @@ public class Repo {
 
     private static final Logger LOGGER = Logger.getLogger(Repo.class.getName());
 
-    private static final String EVENT_CODE_FILE_NAME = "event-codes.bin";
+    private static final String EVENT_CODES_FILE_NAME = "event-codes.bin";
     private static final String EVENTS_FILE_NAME = "events.bin";
 
     private final String dataPath;
-    private final DataOutputStream oos;
+    private final File eventsFile;
+    private final File eventCodesFile;
 
     public Repo(String dataPath) throws IOException {
         this.dataPath = dataPath;
-        File file = new File(dataPath, EVENTS_FILE_NAME);
-        oos = new DataOutputStream(new FileOutputStream(file, true));
-        LOGGER.info("Open repo: " + file);
-    }
-
-    public void close() {
-        IOUtils.closeQuietly(oos);
+        eventsFile = new File(dataPath, EVENTS_FILE_NAME);
+        eventCodesFile = new File(dataPath, EVENT_CODES_FILE_NAME);
     }
 
     public List<Event> readEvents() throws IOException {
         List<Event> events = new ArrayList<Event>();
-        DataInputStream ois = new DataInputStream(new FileInputStream(new File(dataPath, EVENTS_FILE_NAME)));
-        try {
-            while (true) {
-                events.add(new Event(ois.readShort(), ois.readLong(), ois.readLong()));
+
+        try (DataInputStream dis = new DataInputStream(new FileInputStream(new File(dataPath, EVENTS_FILE_NAME)))) {
+            try {
+                while (true) {
+                    events.add(new Event(dis.readShort(), dis.readLong(), dis.readLong()));
+                }
+            } catch (EOFException e) {
+                // just end
             }
-        } catch (EOFException e) {
-            // just end
         } catch (FileNotFoundException e) {
-            // nothing
-        } finally {
-            IOUtils.closeQuietly(ois);
+            // nothing, just no data
         }
+
         LOGGER.info(events.size() + " restored");
         return events;
     }
 
-    public void storeEvents(List<Event> events) throws IOException {
-        for (Event event : events) writeEvent(event);
-        oos.flush();
-//        LOGGER.info(events.size() + " added");
+    public void addEvents(final List<Event> events) throws IOException {
+        try (DataOutputStream oos = new DataOutputStream(new FileOutputStream(eventsFile, true))) {
+            for (Event event : events) {
+                oos.writeShort(event.metricCode);
+                oos.writeLong(event.timestamp);
+                oos.writeLong(event.value);
+            }
+        }
     }
 
-    private void writeEvent(Event event) throws IOException {
-        oos.writeShort(event.metricCode);
-        oos.writeLong(event.timestamp);
-        oos.writeLong(event.value);
-    }
-
-    public void storeMetricCodes(Map<String, Short> metricCodes) throws IOException {
+    public void storeMetricCodes(final Map<String, Short> metricCodes) throws IOException {
         DataOutputStream dos = null;
         try {
-            dos = new DataOutputStream(new FileOutputStream(new File(dataPath, EVENT_CODE_FILE_NAME)));
+            dos = new DataOutputStream(new FileOutputStream(eventCodesFile));
             for (Map.Entry<String, Short> metricCode : metricCodes.entrySet()) {
                 dos.writeUTF(metricCode.getKey());
                 dos.writeShort(metricCode.getValue());
@@ -97,7 +92,7 @@ public class Repo {
         Map<String, Short> result = new HashMap<>();
         DataInputStream ois = null;
         try {
-            ois = new DataInputStream(new FileInputStream(new File(dataPath, EVENT_CODE_FILE_NAME)));
+            ois = new DataInputStream(new FileInputStream(eventCodesFile));
             while (true) {
                 result.put(ois.readUTF(), ois.readShort());
             }
@@ -107,6 +102,12 @@ public class Repo {
             IOUtils.closeQuietly(ois);
         }
         return result;
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    public void clear() throws IOException {
+        eventsFile.delete();
+        eventCodesFile.delete();
     }
 
 }
