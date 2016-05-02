@@ -18,6 +18,7 @@ package com.github.terma.m.server;
 
 import com.github.terma.m.shared.Event;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -28,6 +29,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
+@Ignore
 public class DataServletTest {
 
     private HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
