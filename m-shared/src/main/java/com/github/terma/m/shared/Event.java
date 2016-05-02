@@ -16,46 +16,6 @@ limitations under the License.
 */
 package com.github.terma.m.shared;
 
-/**
- * PERF
- * <p>
- * SRA-GUI-WB MEM/CPU
- * SRA-GUI-RD MEM/CPU
- * <p>
- * SRA-GUI-RD REQUEST-TIME
- * <p>
- * HOST1 SRA-SC-GSC1 MEM/CPU
- * HOST2 SRA-SC-GSC2 MEM/CPU
- * <p>
- * SRA-SC SOURCE CHAIN-ACTION-TIME
- * <p>
- * GS ControlData COUNT
- * GS TessEvent COUNT
- * <p>
- * CM MEM/CPU
- * <p>
- * What we need?
- * <p>
- * [host] - code
- * [app] - code
- * event - code
- * timestamp
- * value
- * <p>
- * ----------------
- * Charts on UI:
- * <p>
- * HOST* MEM => all events *hosts.sra-gui.*service.mem.*
- * HOST* CPU
- * <p>
- * SRA-GUI* CPU
- * SRA-GUI* MEM
- * <p>
- * CM MEM
- * CM CPU
- * <p>
- * GS* COUNT
- */
 public class Event {
 
     public final long timestamp;
