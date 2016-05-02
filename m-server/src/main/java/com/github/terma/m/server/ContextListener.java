@@ -22,11 +22,13 @@ import com.github.terma.m.shared.NodeConfig;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-public class NodeStarter implements ServletContextListener {
+public class ContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         final Config config = Config.readConfig();
+
+        EventsFactory.get();
 
         for (NodeConfig nodeConfig : config.nodes) {
             NodeRunner.safeStart(config, nodeConfig);

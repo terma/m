@@ -72,6 +72,8 @@ public class NodeRunner {
 
     private static void start(final Config server, NodeConfig nodeConfig)
             throws JSchException, SftpException, IOException {
+        LOGGER.info("Starting node " + nodeConfig.host + "...");
+
         final JSch jsch = new JSch();
 
         jsch.addIdentity(getPrivateKeyFile(server));
@@ -87,7 +89,7 @@ public class NodeRunner {
         final InputStream zip = NodeRunner.class.getResourceAsStream("/m-node.zip");
 
         try {
-            LOGGER.info("Copying node data...");
+            LOGGER.info("Copying node " + nodeConfig.host + " data...");
             final ChannelSftp channelSftp = (ChannelSftp) session.openChannel("sftp");
             channelSftp.connect();
             try {
@@ -104,8 +106,9 @@ public class NodeRunner {
             String enableLogParameter = "";
             if (server.enableNodeLog) enableLogParameter = " --enableLog";
 
-            LOGGER.info("Executing start node script...");
-            execute(session, "cd " + remoteDir + " && ./m-node.sh" + enableLogParameter);
+            LOGGER.info("Executing start node " + nodeConfig.host + " script...");
+            execute(session, "cd " + remoteDir + " && ./m-node.sh " + nodeConfig.host + enableLogParameter);
+            LOGGER.info("Node " + nodeConfig.host + " started");
         } finally {
             session.disconnect();
         }

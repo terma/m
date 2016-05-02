@@ -23,9 +23,29 @@
         <servlet-name>data</servlet-name>
         <url-pattern>/data</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>clear</servlet-name>
+        <servlet-class>com.github.terma.m.server.ClearServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>clear</servlet-name>
+        <url-pattern>/data/clear</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>config</servlet-name>
+        <servlet-class>com.github.terma.m.server.ConfigServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>config</servlet-name>
+        <url-pattern>/config</url-pattern>
+    </servlet-mapping>
     
     <listener>
-        <listener-class>com.github.terma.m.server.NodeStarter</listener-class>
+        <listener-class>com.github.terma.m.server.ContextListener</listener-class>
     </listener>
 
     <welcome-file-list>

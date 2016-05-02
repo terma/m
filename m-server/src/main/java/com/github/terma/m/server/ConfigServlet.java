@@ -16,32 +16,21 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
-import com.github.terma.m.shared.Event;
+import com.github.terma.m.shared.Config;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import org.apache.commons.io.IOUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public class NodeServlet extends HttpServlet {
-
-    private static final Type EVENTS_TYPE = new TypeToken<List<Event>>() {
-    }.getType();
-    private static final Gson GSON = new Gson();
+public class ConfigServlet extends HttpServlet {
 
     @Override
-    protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
+    protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        final List<Event> newEvents = GSON.fromJson(IOUtils.toString(request.getInputStream()), EVENTS_TYPE);
-        EventsFactory.get().add(newEvents);
+        response.getWriter().write(new Gson().toJson(Config.readConfig().charts));
     }
 
 }

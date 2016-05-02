@@ -2,8 +2,8 @@
 
 set -e
 
-PROCESS_MARKER=M_NODE_MARKER
-SIGAR_NATIVE_PATH=native
+PROCESS_MARKER="M_NODE_$1"
+SIGAR_NATIVE_PATH="native"
 
 # ----------------------------------------------------------------------------------------------------------------------
 # stop if running
@@ -42,7 +42,7 @@ mv config.json config
 echo "Starting m-node..."
 
 LOG_FILE=/dev/null
-if [ "$1" == "--enableLog" ]; then
+if [ "$2" == "--enableLog" ]; then
     LOG_FILE=m-node.out
 fi
 

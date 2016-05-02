@@ -16,7 +16,6 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
-import com.github.terma.m.shared.Event;
 import com.google.gson.Gson;
 
 import javax.servlet.ServletException;
@@ -24,30 +23,31 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class DataServlet extends HttpServlet {
+
+    private static final int PARTS = 200;
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        final String startString = request.getParameter("start");
-        final String endString = request.getParameter("end");
+        final String minString = request.getParameter("min");
+        final String maxString = request.getParameter("max");
 
-        final List<Event> eventsToSend = new ArrayList<>();
-        if (startString == null) {
-            // nothing
-        } else {
-            long end = Long.MAX_VALUE;
-            if (endString != null) end = Long.parseLong(endString);
+        final long min = minString != null ? Long.parseLong(minString) : EventsFactory.get().min();
+        final long max = maxString != null ? Long.parseLong(maxString) : System.currentTimeMillis();
 
-            final long start = Long.parseLong(startString);
-            for (Event event : Events.get()) {
-                if (event.timestamp > start && event.timestamp <= end) eventsToSend.add(event);
-            }
-        }
-        response.getWriter().write(new Gson().toJson(eventsToSend));
+        final String metric = request.getParameter("metric");
+        final String callback = request.getParameter("callback");
+
+        final Map<String, List<Events.Point>> events = EventsFactory.get().get(PARTS, min, max, metric);
+
+        System.out.println("[" + new Date(min) + " : " + new Date(max) + "] events " + events.size());
+
+        response.getWriter().write(callback + "(" + new Gson().toJson(events) + ");");
     }
 
 }

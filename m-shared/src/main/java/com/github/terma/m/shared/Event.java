@@ -16,13 +16,19 @@ limitations under the License.
 */
 package com.github.terma.m.shared;
 
-import java.io.Serializable;
+public class Event {
 
-public class Event implements Serializable {
-
-    public final String metric;
     public final long timestamp;
     public final long value;
+
+    public String metric;
+    public short metricCode;
+
+    public Event(short metricCode, long timestamp, long value) {
+        this.metricCode = metricCode;
+        this.timestamp = timestamp;
+        this.value = value;
+    }
 
     public Event(String metric, long value) {
         this(metric, System.currentTimeMillis(), value);
@@ -35,8 +41,31 @@ public class Event implements Serializable {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Event event = (Event) o;
+
+        if (timestamp != event.timestamp) return false;
+        if (value != event.value) return false;
+        if (metricCode != event.metricCode) return false;
+        return metric != null ? metric.equals(event.metric) : event.metric == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = (int) (timestamp ^ (timestamp >>> 32));
+        result = 31 * result + (int) (value ^ (value >>> 32));
+        result = 31 * result + (metric != null ? metric.hashCode() : 0);
+        result = 31 * result + (int) metricCode;
+        return result;
+    }
+
+    @Override
     public String toString() {
-        return "Event {metric: '" + metric + "', timestamp: " + timestamp + ", value: " + value + '}';
+        return "Event {metric: '" + metric + "', code: " + metricCode + ", timestamp: " + timestamp + ", value: " + value + '}';
     }
 
 

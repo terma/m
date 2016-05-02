@@ -41,6 +41,7 @@ public class Config {
     public String user;
     public String privateKeyFile;
     public List<NodeConfig> nodes = new ArrayList<>();
+    public List<ChartConfig> charts = new ArrayList<>();
 
     public static Config readConfig() {
         final String configPath = System.getProperty(CONFIG_PATH_SYSTEM_PROPERTY);

@@ -3,10 +3,28 @@
   "host": "localhost",
   "port": 8080,
   "context": "/m",
-  "secToRefresh": 5,
+  "secToRefresh": 1,
   "nodes": [
     {
       "host": "localhost",
+      "checks": [
+        {
+          "name": "host.mem"
+        },
+        {
+          "name": "host.cpu"
+        },
+        {
+          "name": "host.net"
+        },
+        {
+          "name": "jvm",
+          "processPattern": "-Dname=(SERVE.+)"
+        }
+      ]
+    },
+    {
+      "host": "127.0.0.1",
       "checks": [
         {
           "name": "host.mem"

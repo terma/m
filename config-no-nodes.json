@@ -1,5 +1,23 @@
 {
-  "dataPath": "/Users/terma/Projects/m/data.bin",
+  "dataPath": "/Users/terma/Projects/m/data",
   "host": "localhost",
-  "port": 8080
+  "port": 8080,
+  "charts": [
+    {
+      "title": "Host Mem",
+      "metric": "host.mem"
+    },
+    {
+      "title": "JVM Mem",
+      "metric": "jvm.mem"
+    },
+    {
+      "title": "Host CPU",
+      "metric": "host.cpu"
+    },
+    {
+      "title": "JVM CPU",
+      "metric": "jvm.cpu"
+    }
+  ]
 }
