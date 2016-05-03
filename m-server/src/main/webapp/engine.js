@@ -7,6 +7,10 @@ $(function () {
      */
     var charts = void 0;
 
+    function convertDataToPoint(dataPoint) {
+        return [dataPoint.timestamp, dataPoint.value != void 0 ? dataPoint.value : null];
+    }
+
     function convertDataToSeries(data) {
         var series = [];
         for (var metric in data) {
@@ -15,7 +19,7 @@ $(function () {
             var seriesData = [];
 
             data[metric].forEach(function (tAndV) {
-                seriesData.push([tAndV.timestamp, tAndV.value]);
+                seriesData.push(convertDataToPoint(tAndV));
             });
 
             series.push({
@@ -45,14 +49,10 @@ $(function () {
 
                 var seriesData = [];
                 data[metric].forEach(function (tAndV) {
-                    seriesData.push([tAndV.timestamp, tAndV.value]);
+                    seriesData.push(convertDataToPoint(tAndV));
                 });
 
                 series.setData(seriesData);
-
-                // var dataMax = data[metric][data[metric].length - 1].timestamp;
-                // var chartMax = chart.highchart.xAxis[0].max;
-                // console.log('data max ' + dataMax + ', chart max ' + chartMax + ', d vs c ' + (dataMax - chartMax));
             }
         });
     }

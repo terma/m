@@ -32,6 +32,7 @@ import java.util.regex.Pattern;
 /**
  * Thread safe
  */
+@SuppressWarnings("WeakerAccess")
 class Events {
 
     private final ReadWriteLock LOCK = new ReentrantReadWriteLock();
@@ -172,19 +173,24 @@ class Events {
         }
     }
 
+    @SuppressWarnings("WeakerAccess")
     static class Point {
 
         final long timestamp;
-        final long value;
+        final Long value;
 
-        public Point(long timestamp, long value) {
+        public Point(final long timestamp, final Long value) {
             this.timestamp = timestamp;
             this.value = value;
         }
 
-        @Override
-        public String toString() {
-            return "Point {timestamp: " + timestamp + ", value: " + value + '}';
+        public Point(final long timestamp) {
+            this(timestamp, null);
+        }
+
+        public Point(final long timestamp, final int value) {
+            this.timestamp = timestamp;
+            this.value = (long) value;
         }
 
         @Override
@@ -193,18 +199,22 @@ class Events {
             if (o == null || getClass() != o.getClass()) return false;
 
             Point point = (Point) o;
-
-            if (timestamp != point.timestamp) return false;
-            return value == point.value;
+            return timestamp == point.timestamp && (value != null ? value.equals(point.value) : point.value == null);
 
         }
 
         @Override
         public int hashCode() {
             int result = (int) (timestamp ^ (timestamp >>> 32));
-            result = 31 * result + (int) (value ^ (value >>> 32));
+            result = 31 * result + (value != null ? value.hashCode() : 0);
             return result;
         }
+
+        @Override
+        public String toString() {
+            return "Point {timestamp: " + timestamp + ", value: " + value + '}';
+        }
+
     }
 
 }

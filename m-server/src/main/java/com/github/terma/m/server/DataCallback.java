@@ -57,9 +57,7 @@ class DataCallback implements ArrayLayoutCallback {
         final int chunk = (int) ((timestamp - min) / del);
 
         final Acc[] accs = getAccs(event);
-        final Acc acc = accs[chunk];
-        acc.value += values[position];
-        acc.count++;
+        accs[chunk].add(values[position]);
     }
 
     private Acc[] getAccs(final short event) {

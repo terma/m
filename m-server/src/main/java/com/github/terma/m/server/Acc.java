@@ -19,16 +19,24 @@ package com.github.terma.m.server;
 @SuppressWarnings("WeakerAccess")
 class Acc {
 
-    long timestamp;
-    long value;
-    int count;
+    final long timestamp;
 
-    public Acc(long timestamp) {
+    private Long value;
+    private int count;
+
+    public Acc(final long timestamp) {
         this.timestamp = timestamp;
     }
 
-    public long getAvg() {
-        if (count == 0) return 0;
+    public void add(long value) {
+        if (this.value == null) this.value = value;
+        else this.value += value;
+        count++;
+    }
+
+    public Long getAvg() {
+        if (value == null) return null;
+        else if (count == 0) return 0L;
         else return value / count;
     }
 }
