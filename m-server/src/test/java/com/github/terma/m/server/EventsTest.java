@@ -28,6 +28,8 @@ import java.util.List;
 
 public class EventsTest {
 
+    private final Events events = new Events(null);
+
     @Test
     public void supportNullRepo() throws IOException {
         new Events(null);
@@ -35,13 +37,11 @@ public class EventsTest {
 
     @Test
     public void noDataEmptyResult() throws IOException {
-        Events events = new Events(null);
         Assert.assertEquals(0, events.get(3, 0, 100, "nona").size());
     }
 
     @Test
     public void getData() throws IOException {
-        Events events = new Events(null);
         events.add(Collections.singletonList(new Event("a", 55, 901)));
 
         Assert.assertEquals(
@@ -58,7 +58,6 @@ public class EventsTest {
 
     @Test
     public void whenGetFewEventsInOneChunkThenTakeAverage() throws IOException {
-        Events events = new Events(null);
         events.add(Arrays.asList(
                 new Event("a", 50, 50),
                 new Event("a", 55, 100),
@@ -79,7 +78,6 @@ public class EventsTest {
 
     @Test
     public void shouldFilterByIncludeMinExcludeMax() throws IOException {
-        Events events = new Events(null);
         events.add(Arrays.asList(
                 new Event("a", 49, 500),
                 new Event("a", 50, 1),
@@ -100,7 +98,6 @@ public class EventsTest {
 
     @Test
     public void shouldAlwaysReturnAtTheEndAdditionalNodeWithoutData() throws IOException {
-        Events events = new Events(null);
         events.add(Arrays.asList(
                 new Event("a", 49, 500),
                 new Event("a", 50, 1),
@@ -122,7 +119,6 @@ public class EventsTest {
 
     @Test
     public void shouldFilterMetricByPattern() throws IOException {
-        Events events = new Events(null);
         events.add(Arrays.asList(
                 new Event("metric.host1.b", 50, 1),
                 new Event("metric.host1.c.used", 99, 1)
@@ -149,8 +145,24 @@ public class EventsTest {
     }
 
     @Test
+    public void shouldFilterMetricByRegexPattern() throws IOException {
+        events.add(Arrays.asList(
+                new Event("metric.host1.b", 50, 1),
+                new Event("metric.host1.c.used", 56, 10),
+                new Event("metric.host2.c.used", 99, 1)
+        ));
+
+        Assert.assertEquals(Collections.EMPTY_MAP, events.get(3, 0, 200, "omeba"));
+        Assert.assertEquals(
+                new HashMap<String, List<Events.Point>>() {{
+                    put("metric.host1.c.used", Arrays.asList(new Events.Point(50, 10), new Events.Point(67, 0), new Events.Point(84, 0), new Events.Point(101, 0)));
+                    put("metric.host2.c.used", Arrays.asList(new Events.Point(50, 0), new Events.Point(67, 0), new Events.Point(84, 1), new Events.Point(101, 0)));
+                }},
+                events.get(3, 50, 100, "host\\d+.c"));
+    }
+
+    @Test
     public void shouldReturnNothingIfMaxLessMin() throws IOException {
-        Events events = new Events(null);
         events.add(Arrays.asList(
                 new Event("a", 49, 500),
                 new Event("a", 50, 1),

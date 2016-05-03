@@ -8,16 +8,24 @@
       "metric": "host.mem"
     },
     {
-      "title": "JVM Mem",
-      "metric": "jvm.mem"
+      "title": "JVM APP1 Mem",
+      "metric": "APP1-.+.jvm.mem"
+    },
+    {
+      "title": "JVM APP2 Mem",
+      "metric": "APP2.jvm.mem"
     },
     {
       "title": "Host CPU",
       "metric": "host.cpu"
     },
     {
-      "title": "JVM CPU",
-      "metric": "jvm.cpu"
+      "title": "JVM APP1 CPU",
+      "metric": "APP1-.+.jvm.cpu"
+    },
+    {
+      "title": "JVM APP2 CPU",
+      "metric": "APP2.jvm.cpu"
     }
   ]
 }

@@ -32,7 +32,7 @@ $(function () {
         var minParameter = min != void 0 ? '&min=' + min : '';
         var maxParameter = max != void 0 ? '&max=' + max : '';
 
-        $.getJSON('data?metric=' + chart.metric + minParameter + maxParameter + '&callback=?', function (data) {
+        $.getJSON('data?metric=' + encodeURIComponent(chart.metric) + minParameter + maxParameter + '&callback=?', function (data) {
             for (var metric in data) {
                 if (!metric) continue;
 
@@ -112,7 +112,7 @@ $(function () {
     }
 
     function load(chart) {
-        $.getJSON('data?metric=' + chart.metric + '&callback=?', function (data) {
+        $.getJSON('data?metric=' + encodeURIComponent(chart.metric) + '&callback=?', function (data) {
             var series = convertDataToSeries(data);
 
             $('<div style="height: 400px; min-width: 310px"></div>').appendTo('#container').highcharts('StockChart', {

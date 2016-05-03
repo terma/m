@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Pattern;
 
 /**
  * Thread safe
@@ -74,10 +75,12 @@ class Events {
                         new FastSelect.Column("value", long.class, 300000)));
     }
 
-    private int[] findMetricCodes(final String pattern) {
-        List<Short> codes = new ArrayList<>();
+    private int[] findMetricCodes(final String regex) {
+        final Pattern pattern = regex == null || regex.isEmpty() ? null : Pattern.compile(regex);
+
+        final List<Short> codes = new ArrayList<>();
         for (Map.Entry<String, Short> metricToCode : metricToCodes.entrySet()) {
-            if (pattern == null || metricToCode.getKey().contains(pattern)) codes.add(metricToCode.getValue());
+            if (pattern == null || pattern.matcher(metricToCode.getKey()).find()) codes.add(metricToCode.getValue());
         }
 
         final int[] result = new int[codes.size()];
@@ -85,6 +88,13 @@ class Events {
         return result;
     }
 
+    /**
+     * @param parts   - precision (points in same part will be AVG)
+     * @param min     - inclusive
+     * @param max     - exclusive
+     * @param pattern - regex
+     * @return map of events with list of points for period
+     */
     public Map<String, List<Point>> get(final int parts, final long min, final long max, String pattern) {
         READ_LOCK.lock();
         try {

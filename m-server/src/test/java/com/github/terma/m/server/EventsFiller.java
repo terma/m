@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class EventsFiller {
 
@@ -31,17 +32,17 @@ public class EventsFiller {
         Events events = new Events("/Users/terma/Projects/m/data");
 
         int count = 200000;
-        long timestamp = System.currentTimeMillis();
+        long timestamp = System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5);
         List<Event> buffer = new ArrayList<>();
         Random random = new Random();
         int i = 0;
         while (i < count) {
-            buffer.add(new Event("yandex.ru.host.cpu", timestamp, random.nextInt(100)));
-            buffer.add(new Event("127.0.0.1.host.cpu", timestamp, random.nextInt(100)));
-            buffer.add(new Event("localhost.host.cpu", timestamp, random.nextInt(100)));
-            buffer.add(new Event("yandex.ru.jvm.mem.used", timestamp, random.nextInt(8000000)));
-            buffer.add(new Event("127.0.0.1.jvm.mem.used", timestamp, random.nextInt(8000000)));
-            buffer.add(new Event("localhost.jvm.mem.used", timestamp, random.nextInt(8000000)));
+            buffer.add(new Event("host190.host.cpu", timestamp, random.nextInt(100)));
+            buffer.add(new Event("host280.host.cpu", timestamp, random.nextInt(100)));
+            buffer.add(new Event("host321.host.cpu", timestamp, random.nextInt(100)));
+            buffer.add(new Event("host190.APP1-SERVICE1.jvm.mem.used", timestamp, 8000000 - i * 40));
+            buffer.add(new Event("host280.APP1-SERVICE2.jvm.mem.used", timestamp, i * 40));
+            buffer.add(new Event("host321.APP2.jvm.mem.used", timestamp, random.nextInt(8000000)));
             timestamp += 1000;
             i += 6;
 
