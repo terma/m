@@ -141,7 +141,7 @@ public class EventsTest {
                 new HashMap<String, List<Events.Point>>() {{
                     put("metric.host1.c.used", Arrays.asList(new Events.Point(50, 0), new Events.Point(67, 0), new Events.Point(84, 1), new Events.Point(101, 0)));
                 }},
-                events.get(3, 50, 100, ".c"));
+                events.get(3, 50, 100, ".c.used"));
     }
 
     @Test
