@@ -33,13 +33,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("WeakerAccess")
 class Jvm extends HostAwareChecker {
 
     private final Sigar sigar = new Sigar();
     private final Pattern processPattern;
     private final Pattern jmxPortPattern = Pattern.compile("-Dcom.sun.management.jmxremote.port=(\\d+)");
 
-    public Jvm(String host, String processPattern) {
+    public Jvm(final String host, final String processPattern) {
         super(host);
         this.processPattern = Pattern.compile(processPattern);
     }
