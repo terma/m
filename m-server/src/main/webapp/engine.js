@@ -1,5 +1,7 @@
 $(function () {
 
+    Highcharts.setOptions({global: {useUTC: false}});
+
     /**
      * Main data part. We take it from server
      */
@@ -112,21 +114,26 @@ $(function () {
     }
 
     function load(chart) {
+        var chartDiv = $('<div style="height: 400px; min-width: 310px"></div>').appendTo('#container');
+        loadToChart(chart, chartDiv);
+    }
+
+    function loadToChart(chart, chartDiv) {
         $.getJSON('data?metric=' + encodeURIComponent(chart.metric) + '&callback=?', function (data) {
             var series = convertDataToSeries(data);
-
-            $('<div style="height: 400px; min-width: 310px"></div>').appendTo('#container').highcharts('StockChart', {
+            chartDiv.highcharts('StockChart', {
                 chart: {zoomType: 'x'},
                 title: {text: chart.title},
                 navigator: {adaptToUpdatedData: false, series: series},
                 scrollbar: {enabled: false},
                 rangeSelector: {
                     buttons: [
+                        {type: 'minute', count: 15, text: '15m'},
                         {type: 'minute', count: 30, text: '30m'},
                         {type: 'hour', count: 1, text: '1h'},
                         {type: 'hour', count: 2, text: '2h'},
+                        {type: 'hour', count: 3, text: '3h'},
                         {type: 'day', count: 1, text: '1d'},
-                        {type: 'week', count: 1, text: '1w'},
                         {type: 'all', text: 'All'}],
                     inputEnabled: false, // it supports only days
                     selected: 4 // all
@@ -142,7 +149,6 @@ $(function () {
                 series: series
             });
             chart.highchart = Highcharts.charts[Highcharts.charts.length - 1];
-            // console.log(chart.highchart.xAxis[0].max);
         });
     }
 
@@ -160,17 +166,6 @@ $(function () {
         $.getJSON('config', function (config) {
             charts = config;
             charts.forEach(load);
-            window.setInterval(function () {
-                // function reloadNavigator(chart) {
-                //         $.getJSON('data?metric=' + chart.metric + '&callback=?', function (data) {
-                //             chart.highchart.navigator.series = convertDataToSeries(data);
-                //         });
-                //     }
-                //
-                // charts.forEach(function (chart) {
-                //     reload(chart, chart.highchart.xAxis[0].min);
-                // });
-            }, 5000);
         });
     });
 
