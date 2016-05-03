@@ -84,21 +84,22 @@ class Jvm extends HostAwareChecker {
 
         for (Map.Entry<String, String> appAndJmxPort : findJmxPorts().entrySet()) {
             JMXServiceURL url = new JMXServiceURL("rmi", "", 0, "/jndi/rmi://" + host + ":" + appAndJmxPort.getValue() + "/jmxrmi");
-            JMXConnector mConnector = JMXConnectorFactory.connect(url);
-            MBeanServerConnection mMBSC = mConnector.getMBeanServerConnection();
-            final ObjectName memObjectName = new ObjectName("java.lang:type=Memory");
+            try (JMXConnector mConnector = JMXConnectorFactory.connect(url)) {
+                MBeanServerConnection mMBSC = mConnector.getMBeanServerConnection();
+                final ObjectName memObjectName = new ObjectName("java.lang:type=Memory");
 
-            final CompositeDataSupport heapMemoryUsage = (CompositeDataSupport) mMBSC.getAttribute(memObjectName, "HeapMemoryUsage");
-            events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.heap.total", (Long) heapMemoryUsage.get("max")));
-            events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.heap.used", (Long) heapMemoryUsage.get("used")));
+                final CompositeDataSupport heapMemoryUsage = (CompositeDataSupport) mMBSC.getAttribute(memObjectName, "HeapMemoryUsage");
+                events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.heap.total", (Long) heapMemoryUsage.get("max")));
+                events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.heap.used", (Long) heapMemoryUsage.get("used")));
 
-            final CompositeDataSupport nonHeapMemoryUsage = (CompositeDataSupport) mMBSC.getAttribute(memObjectName, "NonHeapMemoryUsage");
-            events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.nonheap.total", (Long) nonHeapMemoryUsage.get("max")));
-            events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.nonheap.used", (Long) nonHeapMemoryUsage.get("used")));
+                final CompositeDataSupport nonHeapMemoryUsage = (CompositeDataSupport) mMBSC.getAttribute(memObjectName, "NonHeapMemoryUsage");
+                events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.nonheap.total", (Long) nonHeapMemoryUsage.get("max")));
+                events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.nonheap.used", (Long) nonHeapMemoryUsage.get("used")));
 
-            final ObjectName cpuObjectName = new ObjectName("java.lang:type=OperatingSystem");
-            final long cpuLoad = Math.round(((Double) mMBSC.getAttribute(cpuObjectName, "ProcessCpuLoad")) * 100);
-            events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.cpu", cpuLoad));
+                final ObjectName cpuObjectName = new ObjectName("java.lang:type=OperatingSystem");
+                final long cpuLoad = Math.round(((Double) mMBSC.getAttribute(cpuObjectName, "ProcessCpuLoad")) * 100);
+                events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.cpu", cpuLoad));
+            }
         }
         return events;
     }
