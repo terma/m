@@ -51,7 +51,6 @@ public class Event {
         if (value != event.value) return false;
         if (metricCode != event.metricCode) return false;
         return metric != null ? metric.equals(event.metric) : event.metric == null;
-
     }
 
     @Override
@@ -67,6 +66,5 @@ public class Event {
     public String toString() {
         return "Event {metric: '" + metric + "', code: " + metricCode + ", timestamp: " + timestamp + ", value: " + value + '}';
     }
-
 
 }

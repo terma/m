@@ -18,6 +18,18 @@
           "name": "host.net"
         },
         {
+          "name": "jmx",
+          "expression.${host}.APP1.requestPerSec": "package:type=BeanName.attribute1",
+          "expression.${host}.APP2.eventsPerSec": "package:type=BeanName.attribute2",
+          "processPattern": "<pattern to find java process and get JMX port>",
+          "jmxHost": "<JMX port to connect on that host>",
+          "jmxPort": "<JMX port to connect on that host>",
+          "gigaSpaceUrl": "jini://<gigaspace URL to connect>",
+          "gigaSpaceUser": "?",
+          "gigaSpacePassword": "?",
+          "gigaSpacePUName": "<optional if present filter from all GSC JMX instances only where PU present>"
+        },
+        {
           "name": "jvm",
           "processPattern": "-Dname=(SERVE.+)"
         }
