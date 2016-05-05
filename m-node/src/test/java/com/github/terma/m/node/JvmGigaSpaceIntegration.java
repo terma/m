@@ -14,7 +14,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package com.github.terma.m.node.jmx;
+package com.github.terma.m.node;
 
 import com.github.terma.m.shared.Event;
 import org.junit.Assert;
@@ -24,23 +24,23 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * We can't create test for {@link GigaSpaceJmxUrlLocator} as it depends on
+ * We can't create test for {@link com.github.terma.m.node.jmx.GigaSpaceJmxUrlLocator} as it depends on
  * {@link org.hyperic.sigar.Sigar} which needs to have
  * native libraries in special path. Plus it needs dedicated {@link org.openspaces.core.GigaSpace}
  */
-public class JmxGigaSpaceChecker {
+public class JvmGigaSpaceIntegration {
 
     public static void main(String[] args) throws Exception {
         System.setProperty("java.library.path", "/Users/terma/Downloads/sigar-1.6.4-native");
 
         Map<String, String> params = new HashMap<String, String>() {{
-            put("expression.test", "*:type=GSC,name=GSC,*.ServiceCount");
+            put("metricPrefix", "${host}.${containerType}${containerId}");
             put("gigaSpaceLocators", "127.0.0.1:4700");
         }};
 
-        Jmx jmx = new Jmx(null, params);
+        Jvm jvm = new Jvm("h", params);
 
-        List<Event> events = jmx.get();
+        List<Event> events = jvm.get();
 
         Assert.assertTrue(events.size() > 0);
         System.out.println(events);

@@ -94,7 +94,7 @@ public class Node {
             } else if (checkConfig.name.equals("host.net")) {
                 checkers.add(new HostNet(nodeConfig.host));
             } else if (checkConfig.name.equals("jvm")) {
-                checkers.add(new Jvm(nodeConfig.host, checkConfig.processPattern));
+                checkers.add(new Jvm(nodeConfig.host, null));
             }
         }
         return checkers;

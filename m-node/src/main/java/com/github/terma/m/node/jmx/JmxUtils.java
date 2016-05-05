@@ -80,7 +80,7 @@ public class JmxUtils {
 
     public static String buildJmxUrl(String host, String port) {
 //        return "/jndi/rmi://" + host + ":" + port + "/jmxrmi";
-        return "service:jmx:rmi///jndi/rmi://" + host + ":" + port + "/jmxrmi";
+        return "service:jmx:rmi:///jndi/rmi://" + host + ":" + port + "/jmxrmi";
     }
 
 }

@@ -36,7 +36,9 @@ public class StringUtils {
             Matcher matcher = pattern.matcher(formatted);
             if (matcher.find()) {
                 String key = matcher.group(1);
-                formatted = matcher.replaceFirst(context.get(key));
+                String replacement = context.get(key);
+                if (replacement == null) replacement = "";
+                formatted = matcher.replaceFirst(replacement);
                 fixed = true;
             }
         } while (fixed);

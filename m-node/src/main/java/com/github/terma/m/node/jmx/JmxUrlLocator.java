@@ -29,7 +29,7 @@ import static com.github.terma.m.node.jmx.JmxUtils.buildJmxUrl;
 import static com.github.terma.m.node.jmx.JmxUtils.findJmxPorts;
 
 @SuppressWarnings("WeakerAccess")
-abstract class JmxUrlLocator {
+public abstract class JmxUrlLocator {
 
     public static JmxUrlLocator create(final Map<String, String> params) {
         if (params.containsKey("processPattern")) {
@@ -60,7 +60,7 @@ abstract class JmxUrlLocator {
             try {
                 for (Map.Entry<String, String> appAndPort : findJmxPorts(sigar, processPattern).entrySet()) {
                     ValueWithContext<String> valueWithContext =
-                            new ValueWithContext<>(buildJmxUrl(null, appAndPort.getValue()))
+                            new ValueWithContext<>(buildJmxUrl("localhost", appAndPort.getValue()))
                                     .withProperty("appName", appAndPort.getKey());
                     jmxUrls.add(valueWithContext);
                 }

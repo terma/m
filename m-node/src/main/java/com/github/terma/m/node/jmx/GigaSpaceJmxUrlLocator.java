@@ -72,7 +72,11 @@ class GigaSpaceJmxUrlLocator extends JmxUrlLocator {
 
         for (GridServiceContainer gridServiceContainer : admin.getGridServiceContainers()) {
             final String jmxUrl = gridServiceContainer.getVirtualMachine().getDetails().getJmxUrl();
-            jmxUrls.add(new ValueWithContext<>(jmxUrl, params));
+            jmxUrls.add(
+                    new ValueWithContext<>(jmxUrl, params)
+                            .withProperty("containerId", String.valueOf(gridServiceContainer.getAgentId()))
+                            .withProperty("containerType", "GSC")
+            );
         }
 
         return jmxUrls;
