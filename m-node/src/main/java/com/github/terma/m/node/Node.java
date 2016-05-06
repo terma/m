@@ -16,6 +16,8 @@ limitations under the License.
 */
 package com.github.terma.m.node;
 
+import com.github.terma.m.node.gigaspace.GigaSpaceTypeChange;
+import com.github.terma.m.node.gigaspace.GigaSpaceTypeCount;
 import com.github.terma.m.shared.CheckConfig;
 import com.github.terma.m.shared.Event;
 import com.github.terma.m.shared.NodeConfig;
@@ -95,6 +97,10 @@ public class Node {
                 checkers.add(new HostNet(nodeConfig.host));
             } else if (checkConfig.name.equals("jvm")) {
                 checkers.add(new Jvm(nodeConfig.host, null));
+            } else if (checkConfig.name.equals("gigaSpaceCount")) {
+                checkers.add(new GigaSpaceTypeCount(nodeConfig.host, null));
+            } else if (checkConfig.name.equals("gigaSpaceChange")) {
+                checkers.add(new GigaSpaceTypeChange(nodeConfig.host, null));
             }
         }
         return checkers;

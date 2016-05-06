@@ -14,21 +14,25 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package com.github.terma.m.node;
+package com.github.terma.m.node.gigaspace;
 
-import com.github.terma.m.shared.Event;
+import com.github.terma.m.node.SystemTime;
 
-import java.util.List;
+import java.util.Map;
 
-/**
- * @see Jvm
- * @see com.github.terma.m.node.jmx.Jmx
- * @see Node.com.github.terma.m.node.Node.HostCpu
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeChange
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeCount
- */
-public interface Checker {
+public class GigaSpaceTypeCount extends GigaSpaceType {
 
-    List<Event> get() throws Exception;
+    public GigaSpaceTypeCount(String host, Map<String, String> params) {
+        super(host, params);
+    }
+
+    public GigaSpaceTypeCount(String host, Map<String, String> params, SystemTime systemTime) {
+        super(host, params, systemTime);
+    }
+
+    @Override
+    protected long calculateValue(String typeName, long value) {
+        return value;
+    }
 
 }
