@@ -16,11 +16,7 @@ limitations under the License.
 */
 package com.github.terma.m.node;
 
-import com.github.terma.m.shared.Event;
-import org.junit.Assert;
-
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,12 +34,7 @@ public class JvmGigaSpaceIntegration {
             put("gigaSpaceLocators", "127.0.0.1:4700");
         }};
 
-        Jvm jvm = new Jvm("h", params);
-
-        List<Event> events = jvm.get();
-
-        Assert.assertTrue(events.size() > 0);
-        System.out.println(events);
+        IntegrationUtils.runChecker(new Jvm("h", params));
     }
 
 

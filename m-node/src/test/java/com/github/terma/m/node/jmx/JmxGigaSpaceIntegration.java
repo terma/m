@@ -16,11 +16,9 @@ limitations under the License.
 */
 package com.github.terma.m.node.jmx;
 
-import com.github.terma.m.shared.Event;
-import org.junit.Assert;
+import com.github.terma.m.node.IntegrationUtils;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,12 +36,7 @@ public class JmxGigaSpaceIntegration {
             put("gigaSpaceLocators", "127.0.0.1:4700");
         }};
 
-        Jmx jmx = new Jmx(null, params);
-
-        List<Event> events = jmx.get();
-
-        Assert.assertTrue(events.size() > 0);
-        System.out.println(events);
+        IntegrationUtils.runChecker(new Jmx(null, params));
     }
 
 
