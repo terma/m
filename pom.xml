@@ -4,7 +4,7 @@
 
     <groupId>com.github.terma.m</groupId>
     <artifactId>m</artifactId>
-    <version>0.0.11</version>
+    <version>0.0.12-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -82,7 +82,7 @@
         <developerConnection>scm:git:https://github.com/terma/m.git</developerConnection>
         <connection>scm:git:https://github.com/terma/m.git</connection>
         <url>https://github.com/terma/m</url>
-        <tag>m-0.0.11</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <build>
