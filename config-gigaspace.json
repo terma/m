@@ -1,0 +1,47 @@
+{
+  "dataPath": "/Users/terma/Projects/m/data",
+  "host": "localhost",
+  "port": 8080,
+  "context": "/m",
+  "secToRefresh": 5,
+  "charts": [
+    {
+      "title": "GigaSpace Count",
+      "metric": "types.count"
+    },
+    {
+      "title": "GigaSpace Diff",
+      "metric": "types.change"
+    },
+    {
+      "title": "GigaSpace Mem",
+      "metric": "GSC\\d+.jvm.mem.heap.used"
+    },
+    {
+      "title": "GigaSpace CPU",
+      "metric": "GSC\\d+.jvm.cpu"
+    }
+  ],
+  "nodes": [
+    {
+      "host": "localhost",
+      "checks": [
+        {
+          "name": "jvm",
+          "metricPrefix": "${host}.${containerType}${containerId}",
+          "gigaSpaceLocators": "127.0.0.1:4700"
+        },
+        {
+          "name": "gigaSpaceCount",
+          "metric": "types.count.${typeName}",
+          "gigaSpaceUrl": "jini:/*/*/gs10?locators=127.0.0.1:4700"
+        },
+        {
+          "name": "gigaSpaceChange",
+          "metric": "types.change.${typeName}",
+          "gigaSpaceUrl": "jini:/*/*/gs10?locators=127.0.0.1:4700"
+        }
+      ]
+    }
+  ]
+}

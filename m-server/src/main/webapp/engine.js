@@ -161,11 +161,24 @@ $(function () {
             });
         }
     });
+    
+    function checkSpace() {
+        $.getJSON('space', function (space) {
+            $('#events').text(space.events);
+            $('#space').text(Math.round(space.space / 1024 / 1024) + 'Mb');
+        });
+    }
+    
+    function startSpaceChecker() {
+        window.setInterval(checkSpace, 5000);
+        checkSpace();
+    }
 
     $(document).ready(function () {
         $.getJSON('config', function (config) {
             charts = config;
             charts.forEach(load);
+            startSpaceChecker();
         });
     });
 

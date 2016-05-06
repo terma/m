@@ -173,6 +173,24 @@ class Events {
         }
     }
 
+    public long space() {
+        READ_LOCK.lock();
+        try {
+            return repo == null ? 0 : repo.space();
+        } finally {
+            READ_LOCK.unlock();
+        }
+    }
+
+    public int events() {
+        READ_LOCK.lock();
+        try {
+            return fastSelect.size();
+        } finally {
+            READ_LOCK.unlock();
+        }
+    }
+
     @SuppressWarnings("WeakerAccess")
     static class Point {
 

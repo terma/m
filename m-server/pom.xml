@@ -19,6 +19,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.terma.m</groupId>
+            <artifactId>m-node</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.jcraft</groupId>
             <artifactId>jsch</artifactId>
             <version>0.1.52</version>
@@ -42,6 +48,20 @@
             <artifactId>jetty-webapp</artifactId>
             <version>9.3.0.M1</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.gigaspaces</groupId>
+            <artifactId>gs-openspaces</artifactId>
+            <version>${gsVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.gigaspaces</groupId>
+            <artifactId>gs-runtime</artifactId>
+            <version>${gsVersion}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -92,7 +112,7 @@
                         </systemProperty>
                         <systemProperty>
                             <name>m.config.path</name>
-                            <value>file:/Users/terma/Projects/m/config.json</value>
+                            <value>file:/Users/terma/Projects/m/config-gigaspace.json</value>
                         </systemProperty>
                     </systemProperties>
                     <webApp>

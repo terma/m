@@ -43,6 +43,16 @@
         <servlet-name>config</servlet-name>
         <url-pattern>/config</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>space</servlet-name>
+        <servlet-class>com.github.terma.m.server.SpaceServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>space</servlet-name>
+        <url-pattern>/space</url-pattern>
+    </servlet-mapping>
     
     <listener>
         <listener-class>com.github.terma.m.server.ContextListener</listener-class>

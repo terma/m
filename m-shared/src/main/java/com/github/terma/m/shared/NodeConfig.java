@@ -18,6 +18,7 @@ package com.github.terma.m.shared;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class NodeConfig {
 
@@ -26,6 +27,6 @@ public class NodeConfig {
     public int serverPort;
     public String serverContext;
     public int secToRefresh;
-    public List<CheckConfig> checks = new ArrayList<>();
+    public List<Map<String, String>> checks = new ArrayList<>();
 
 }

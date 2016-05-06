@@ -18,7 +18,6 @@ package com.github.terma.m.node;
 
 import com.github.terma.m.node.gigaspace.GigaSpaceTypeChange;
 import com.github.terma.m.node.gigaspace.GigaSpaceTypeCount;
-import com.github.terma.m.shared.CheckConfig;
 import com.github.terma.m.shared.Event;
 import com.github.terma.m.shared.NodeConfig;
 import com.google.gson.Gson;
@@ -33,6 +32,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.Collections.singletonList;
@@ -60,21 +60,28 @@ public class Node {
         String configJson = IOUtils.toString(Node.class.getResourceAsStream("/config.json"));
         NodeConfig nodeConfig = new Gson().fromJson(configJson, NodeConfig.class);
         System.out.println("Use config: " + configJson);
+        run(nodeConfig);
+    }
 
+    public static void run(NodeConfig nodeConfig) {
         final List<Checker> checkers = buildCheckers(nodeConfig);
-
         startCheck(nodeConfig, checkers);
     }
 
-    private static void startCheck(NodeConfig nodeConfig, List<Checker> checkers) {
+    public static void startCheck(NodeConfig nodeConfig, List<Checker> checkers) {
         while (true) {
-            try {
-                List<Event> events = new ArrayList<>();
-                for (Checker checker : checkers) {
+            List<Event> events = new ArrayList<>();
+            for (Checker checker : checkers) {
+                try {
                     events.addAll(checker.get());
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+            }
+
+            try {
                 send(nodeConfig.serverHost, nodeConfig.serverPort, nodeConfig.serverContext, events);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
 
@@ -88,19 +95,20 @@ public class Node {
 
     private static List<Checker> buildCheckers(NodeConfig nodeConfig) {
         List<Checker> checkers = new ArrayList<>();
-        for (CheckConfig checkConfig : nodeConfig.checks) {
-            if (checkConfig.name.equals("host.mem")) {
+        for (Map<String, String> checkConfig : nodeConfig.checks) {
+            final String name = checkConfig.get("name");
+            if (name.equals("host.mem")) {
                 checkers.add(new HostMem(nodeConfig.host));
-            } else if (checkConfig.name.equals("host.cpu")) {
+            } else if (name.equals("host.cpu")) {
                 checkers.add(new HostCpu(nodeConfig.host));
-            } else if (checkConfig.name.equals("host.net")) {
+            } else if (name.equals("host.net")) {
                 checkers.add(new HostNet(nodeConfig.host));
-            } else if (checkConfig.name.equals("jvm")) {
-                checkers.add(new Jvm(nodeConfig.host, null));
-            } else if (checkConfig.name.equals("gigaSpaceCount")) {
-                checkers.add(new GigaSpaceTypeCount(nodeConfig.host, null));
-            } else if (checkConfig.name.equals("gigaSpaceChange")) {
-                checkers.add(new GigaSpaceTypeChange(nodeConfig.host, null));
+            } else if (name.equals("jvm")) {
+                checkers.add(new Jvm(nodeConfig.host, checkConfig));
+            } else if (name.equals("gigaSpaceCount")) {
+                checkers.add(new GigaSpaceTypeCount(nodeConfig.host, checkConfig));
+            } else if (name.equals("gigaSpaceChange")) {
+                checkers.add(new GigaSpaceTypeChange(nodeConfig.host, checkConfig));
             }
         }
         return checkers;

@@ -12,10 +12,6 @@
     <artifactId>m-node</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <gsVersion>9.7.0-10491-M6</gsVersion>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.github.terma.m</groupId>

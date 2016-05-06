@@ -110,4 +110,8 @@ public class Repo {
         eventCodesFile.delete();
     }
 
+    public long space() {
+        return eventCodesFile.length() + eventsFile.length();
+    }
+
 }
