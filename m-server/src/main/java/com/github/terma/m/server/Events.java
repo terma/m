@@ -49,7 +49,7 @@ class Events {
     public Events(final String dataPath) {
         WRITE_LOCK.lock();
         try {
-            createFastSelect();
+            fastSelect = createFastSelect();
             try {
                 if (dataPath == null) {
                     repo = null;
@@ -58,7 +58,7 @@ class Events {
                     metricToCodes.putAll(repo.readMetricCodes());
                     for (Map.Entry<String, Short> p : metricToCodes.entrySet())
                         codeToMetrics.put(p.getValue(), p.getKey());
-                    fastSelect.addAll(repo.readEvents());
+                    repo.readEvents(fastSelect);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -68,8 +68,9 @@ class Events {
         }
     }
 
-    private void createFastSelect() {
-        fastSelect = new FastSelect<>(1000, Event.class,
+    // visibility for tests
+    static FastSelect<Event> createFastSelect() {
+        return new FastSelect<>(1000, Event.class,
                 Arrays.asList(
                         new FastSelect.Column("metricCode", short.class, 300000),
                         new FastSelect.Column("timestamp", long.class, 300000),
@@ -165,7 +166,7 @@ class Events {
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
-            createFastSelect();
+            fastSelect = createFastSelect();
             metricToCodes.clear();
             codeToMetrics.clear();
         } finally {

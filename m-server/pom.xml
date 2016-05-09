@@ -105,6 +105,12 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>9.3.0.RC1</version>
                 <configuration>
+                    <jvmArgs>
+                        <jvmArg>
+                            <name>Xmx</name>
+                            <value>2g</value>
+                        </jvmArg>
+                    </jvmArgs>
                     <systemProperties>
                         <systemProperty>
                             <name>name</name>

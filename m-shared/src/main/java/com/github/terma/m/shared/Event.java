@@ -24,6 +24,15 @@ public class Event {
     public String metric;
     public short metricCode;
 
+    /**
+     * Only for reflection {@link Class#newInstance()}
+     * We use that constructor inside {@link com.github.terma.fastselect.FastSelect}
+     */
+    public Event() {
+        timestamp = 0;
+        value = 0;
+    }
+
     public Event(short metricCode, long timestamp, long value) {
         this.metricCode = metricCode;
         this.timestamp = timestamp;

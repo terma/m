@@ -31,27 +31,42 @@ public class EventsFiller {
         final long start = System.currentTimeMillis();
         Events events = new Events("/Users/terma/Projects/m/data");
 
-        int count = 200000;
-        long timestamp = System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(5);
+        final int count = 10000000;
+        long timestamp = System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(30);
         List<Event> buffer = new ArrayList<>();
         Random random = new Random();
+
+        int bufferSize = 10000;
+        System.out.println("one . is " + bufferSize);
+
         int i = 0;
         while (i < count) {
-            buffer.add(new Event("host190.host.cpu", timestamp, random.nextInt(100)));
-            buffer.add(new Event("host280.host.cpu", timestamp, random.nextInt(100)));
-            buffer.add(new Event("host321.host.cpu", timestamp, random.nextInt(100)));
-            buffer.add(new Event("host190.APP1-SERVICE1.jvm.mem.used", timestamp, 8000000 - i * 40));
-            buffer.add(new Event("host280.APP1-SERVICE2.jvm.mem.used", timestamp, i * 40));
-            buffer.add(new Event("host321.APP2.jvm.mem.used", timestamp, random.nextInt(8000000)));
-            timestamp += 1000;
-            i += 6;
+            List<Event> cycle = new ArrayList<>();
+            cycle.add(new Event("host190.host.cpu", timestamp, random.nextInt(100)));
+            cycle.add(new Event("host280.host.cpu", timestamp, random.nextInt(100)));
+            cycle.add(new Event("host321.host.cpu", timestamp, random.nextInt(100)));
+            cycle.add(new Event("host190.APP1-SERVICE1.jvm.mem.used", timestamp, 8000000 - i * 40));
+            cycle.add(new Event("host280.APP1-SERVICE2.jvm.mem.used", timestamp, i * 40));
+            cycle.add(new Event("host321.APP2.jvm.mem.used", timestamp, random.nextInt(8000000)));
 
-            if (buffer.size() > 1000) flush(buffer, events);
+            for (int c = 0; c < 40; c++) {
+                cycle.add(new Event("custom.event" + c, timestamp, random.nextInt(100)));
+            }
+
+            buffer.addAll(cycle);
+            i += cycle.size();
+            timestamp += 1000;
+
+            if (buffer.size() > bufferSize) {
+                flush(buffer, events);
+                System.out.print('.');
+            }
         }
 
         flush(buffer, events);
 
         final long time = System.currentTimeMillis() - start;
+        System.out.println();
         System.out.println("Filled " + count + " in " + time + " msec");
     }
 
