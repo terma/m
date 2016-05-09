@@ -16,18 +16,25 @@ limitations under the License.
 */
 package com.github.terma.m.node;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class JvmStability {
 
     public static void main(String[] args) throws Exception {
-        Checker checker = new Jvm("localhost", "marker=(JVM_STABILITY)");
+        Map<String, String> params = new HashMap<String, String>() {{
+            put("processPattern", "marker=(JVM_STABILITY)");
+            put("metricPrefix", "${host}.${process}");
+        }};
+
+        Checker checker = new Jvm("localhost", params);
         final long duration = TimeUnit.MINUTES.toMillis(5);
         final long start = System.currentTimeMillis();
 
         long hole = 0;
 
-        new Thread(new Runnable() {
+        Thread timer = new Thread(new Runnable() {
             @Override
             public void run() {
                 long start = System.currentTimeMillis();
@@ -41,7 +48,9 @@ public class JvmStability {
                     }
                 }
             }
-        }).start();
+        });
+        timer.setDaemon(true);
+        timer.start();
 
         while (System.currentTimeMillis() - start < duration) {
             hole = Math.max(checker.get().hashCode(), hole);

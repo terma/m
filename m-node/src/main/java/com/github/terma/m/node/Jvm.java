@@ -16,90 +16,51 @@ limitations under the License.
 */
 package com.github.terma.m.node;
 
+import com.github.terma.m.node.jmx.*;
 import com.github.terma.m.shared.Event;
-import org.hyperic.sigar.Sigar;
-import org.hyperic.sigar.SigarException;
 
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
 import javax.management.openmbean.CompositeDataSupport;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import static com.github.terma.m.node.StringUtils.enrich;
 
 @SuppressWarnings("WeakerAccess")
 class Jvm extends HostAwareChecker {
 
-    private final Sigar sigar = new Sigar();
-    private final Pattern processPattern;
-    private final Pattern jmxPortPattern = Pattern.compile("-Dcom.sun.management.jmxremote.port=(\\d+)");
+    private static final String MEM_OBJECT_NAME = "java.lang:type=Memory";
+    private static final String CPU_OBJECT_NAME = "java.lang:type=OperatingSystem";
 
-    public Jvm(final String host, final String processPattern) {
+    private final JmxConnectionFactory jmxConnectionFactory = new JmxConnectionFactoryImpl();
+    private final JmxUrlLocator jmxUrlLocator;
+    private final String metricPrefix;
+
+    public Jvm(final String host, final Map<String, String> params) {
         super(host);
-        this.processPattern = Pattern.compile(processPattern);
-    }
-
-    private Map<String, String> findJmxPorts() throws SigarException {
-        Map<String, String> jmxPorts = new HashMap<String, String>();
-        for (long pid : sigar.getProcList()) {
-            String app = null;
-
-            String[] args;
-            try {
-                args = sigar.getProcArgs(pid);
-            } catch (SigarException e) {
-                // nothing we don't have access to that PID
-                continue;
-            }
-
-            for (String arg : args) {
-                Matcher matcher = processPattern.matcher(arg);
-                if (matcher.find()) {
-                    app = matcher.group(1);
-                    break;
-                }
-            }
-
-            if (app != null) {
-                for (String arg : args) {
-                    Matcher matcher = jmxPortPattern.matcher(arg);
-                    if (matcher.find()) {
-                        jmxPorts.put(app, matcher.group(1));
-                        break;
-                    }
-                }
-            }
-        }
-
-        return jmxPorts;
+        this.jmxUrlLocator = JmxUrlLocator.create(params);
+        this.metricPrefix = params.get("metricPrefix");
     }
 
     public List<Event> get() throws Exception {
         List<Event> events = new ArrayList<Event>();
 
-        for (Map.Entry<String, String> appAndJmxPort : findJmxPorts().entrySet()) {
-            JMXServiceURL url = new JMXServiceURL("rmi", "", 0, "/jndi/rmi://" + host + ":" + appAndJmxPort.getValue() + "/jmxrmi");
-            try (JMXConnector mConnector = JMXConnectorFactory.connect(url)) {
-                MBeanServerConnection mMBSC = mConnector.getMBeanServerConnection();
-                final ObjectName memObjectName = new ObjectName("java.lang:type=Memory");
+        for (ValueWithContext<String> jmxUrl : jmxUrlLocator.get()) {
+            try (JmxConnection jmxConnection = jmxConnectionFactory.connect(jmxUrl.getValue())) {
+                final CompositeDataSupport heapMemoryUsage = (CompositeDataSupport) jmxConnection.getAttribute(MEM_OBJECT_NAME, "HeapMemoryUsage");
 
-                final CompositeDataSupport heapMemoryUsage = (CompositeDataSupport) mMBSC.getAttribute(memObjectName, "HeapMemoryUsage");
-                events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.heap.total", (Long) heapMemoryUsage.get("max")));
-                events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.heap.used", (Long) heapMemoryUsage.get("used")));
+                Map<String, String> context = jmxUrl.getContext();
+                context.put("host", host);
 
-                final CompositeDataSupport nonHeapMemoryUsage = (CompositeDataSupport) mMBSC.getAttribute(memObjectName, "NonHeapMemoryUsage");
-                events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.nonheap.total", (Long) nonHeapMemoryUsage.get("max")));
-                events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.mem.nonheap.used", (Long) nonHeapMemoryUsage.get("used")));
+                events.add(new Event(enrich(metricPrefix, context) + ".jvm.mem.heap.total", (Long) heapMemoryUsage.get("max")));
+                events.add(new Event(enrich(metricPrefix, context) + ".jvm.mem.heap.used", (Long) heapMemoryUsage.get("used")));
 
-                final ObjectName cpuObjectName = new ObjectName("java.lang:type=OperatingSystem");
-                final long cpuLoad = Math.round(((Double) mMBSC.getAttribute(cpuObjectName, "ProcessCpuLoad")) * 100);
-                events.add(new Event(host + "." + appAndJmxPort.getKey() + ".jvm.cpu", cpuLoad));
+                final CompositeDataSupport nonHeapMemoryUsage = (CompositeDataSupport) jmxConnection.getAttribute(MEM_OBJECT_NAME, "NonHeapMemoryUsage");
+                events.add(new Event(enrich(metricPrefix, context) + ".jvm.mem.nonheap.total", (Long) nonHeapMemoryUsage.get("max")));
+                events.add(new Event(enrich(metricPrefix, context) + ".jvm.mem.nonheap.used", (Long) nonHeapMemoryUsage.get("used")));
+
+                final long cpuLoad = Math.round(((Double) jmxConnection.getAttribute(CPU_OBJECT_NAME, "ProcessCpuLoad")) * 100);
+                events.add(new Event(enrich(metricPrefix, context) + ".jvm.cpu", cpuLoad));
             }
         }
         return events;

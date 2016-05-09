@@ -14,21 +14,22 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package com.github.terma.m.node;
+package com.github.terma.m.node.gigaspace;
 
-import com.github.terma.m.shared.Event;
+import com.github.terma.m.node.IntegrationUtils;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- * @see Jvm
- * @see com.github.terma.m.node.jmx.Jmx
- * @see Node.com.github.terma.m.node.Node.HostCpu
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeChange
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeCount
- */
-public interface Checker {
+public class GigaSpaceTypeCountIntegritiy {
 
-    List<Event> get() throws Exception;
+    public static void main(String[] args) throws Exception {
+        Map<String, String> params = new HashMap<String, String>() {{
+            put("gigaSpaceUrl", "jini:/*/*/gs10?locators=127.0.0.1:4700");
+            put("metric", "${typeName}");
+        }};
+
+        IntegrationUtils.runChecker(new GigaSpaceTypeCount("localhost", params));
+    }
 
 }

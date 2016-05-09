@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.github.terma.m</groupId>
         <artifactId>m</artifactId>
-        <version>0.0.11-SNAPSHOT</version>
+        <version>0.0.12-SNAPSHOT</version>
     </parent>
 
     <artifactId>m-node</artifactId>
@@ -29,6 +29,21 @@
             <artifactId>sigar</artifactId>
             <classifier>native</classifier>
             <version>1.6.4</version>
+        </dependency>
+
+        <!-- gigaspace -->
+        <dependency>
+            <groupId>com.gigaspaces</groupId>
+            <artifactId>gs-openspaces</artifactId>
+            <version>${gsVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.gigaspaces</groupId>
+            <artifactId>gs-runtime</artifactId>
+            <version>${gsVersion}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

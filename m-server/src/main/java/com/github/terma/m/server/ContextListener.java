@@ -31,7 +31,8 @@ public class ContextListener implements ServletContextListener {
         EventsFactory.get();
 
         for (NodeConfig nodeConfig : config.nodes) {
-            NodeRunner.safeStart(config, nodeConfig);
+            if ("localhost".equals(nodeConfig.host)) LocalNode.start(config, nodeConfig);
+            else NodeRunner.start(config, nodeConfig);
         }
     }
 

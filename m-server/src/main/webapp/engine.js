@@ -61,8 +61,11 @@ $(function () {
      * Load new data depending on the selected min and max
      */
     function afterSetExtremes(e) {
+        var hc = this.chart;
         charts.forEach(function (chart) {
-            reload(chart, Math.round(e.min), Math.round(e.max));
+            if (chart.highchart === hc) {
+                reload(chart, Math.round(e.min), Math.round(e.max));
+            }
         });
     }
 
@@ -162,10 +165,23 @@ $(function () {
         }
     });
 
+    function checkSpace() {
+        $.getJSON('space', function (space) {
+            $('#events').text(space.events);
+            $('#space').text(Math.round(space.space / 1024 / 1024) + 'Mb');
+        });
+    }
+
+    function startSpaceChecker() {
+        window.setInterval(checkSpace, 5000);
+        checkSpace();
+    }
+
     $(document).ready(function () {
         $.getJSON('config', function (config) {
             charts = config;
             charts.forEach(load);
+            startSpaceChecker();
         });
     });
 

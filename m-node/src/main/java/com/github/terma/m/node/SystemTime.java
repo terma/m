@@ -16,19 +16,10 @@ limitations under the License.
 */
 package com.github.terma.m.node;
 
-import com.github.terma.m.shared.Event;
+public class SystemTime {
 
-import java.util.List;
-
-/**
- * @see Jvm
- * @see com.github.terma.m.node.jmx.Jmx
- * @see Node.com.github.terma.m.node.Node.HostCpu
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeChange
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeCount
- */
-public interface Checker {
-
-    List<Event> get() throws Exception;
+    public long getMillis() {
+        return System.currentTimeMillis();
+    }
 
 }

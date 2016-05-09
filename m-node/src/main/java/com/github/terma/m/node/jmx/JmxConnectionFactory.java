@@ -14,21 +14,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package com.github.terma.m.node;
+package com.github.terma.m.node.jmx;
 
-import com.github.terma.m.shared.Event;
+import java.io.IOException;
 
-import java.util.List;
+public interface JmxConnectionFactory {
 
-/**
- * @see Jvm
- * @see com.github.terma.m.node.jmx.Jmx
- * @see Node.com.github.terma.m.node.Node.HostCpu
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeChange
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeCount
- */
-public interface Checker {
+    JmxConnection connect(String url) throws IOException;
 
-    List<Event> get() throws Exception;
+    JmxConnection connect(String host, String port) throws IOException;
 
 }

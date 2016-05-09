@@ -16,6 +16,7 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
+import com.github.terma.fastselect.FastSelect;
 import com.github.terma.m.shared.Event;
 import org.apache.commons.io.IOUtils;
 
@@ -29,6 +30,7 @@ import java.util.logging.Logger;
 /**
  * Non thread sage
  */
+@SuppressWarnings("WeakerAccess")
 public class Repo {
 
     private static final Logger LOGGER = Logger.getLogger(Repo.class.getName());
@@ -46,13 +48,22 @@ public class Repo {
         eventCodesFile = new File(dataPath, EVENT_CODES_FILE_NAME);
     }
 
-    public List<Event> readEvents() throws IOException {
-        List<Event> events = new ArrayList<Event>();
+    private static void batchAdd(FastSelect<Event> fastSelect, List<Event> events) {
+        fastSelect.addAll(events);
+        events.clear();
+    }
+
+    public void readEvents(FastSelect<Event> fastSelect) throws IOException {
+        LOGGER.info("Restoring events from " + eventsFile + "...");
+        final long start = System.currentTimeMillis();
+        List<Event> events = new ArrayList<>();
 
         try (DataInputStream dis = new DataInputStream(new FileInputStream(new File(dataPath, EVENTS_FILE_NAME)))) {
             try {
+                //noinspection InfiniteLoopStatement
                 while (true) {
                     events.add(new Event(dis.readShort(), dis.readLong(), dis.readLong()));
+                    if (events.size() > 1000) batchAdd(fastSelect, events);
                 }
             } catch (EOFException e) {
                 // just end
@@ -60,9 +71,9 @@ public class Repo {
         } catch (FileNotFoundException e) {
             // nothing, just no data
         }
+        batchAdd(fastSelect, events);
 
-        LOGGER.info(events.size() + " restored");
-        return events;
+        LOGGER.info(fastSelect.size() + " restored in " + (System.currentTimeMillis() - start) + " msec");
     }
 
     public void addEvents(final List<Event> events) throws IOException {
@@ -93,6 +104,7 @@ public class Repo {
         DataInputStream ois = null;
         try {
             ois = new DataInputStream(new FileInputStream(eventCodesFile));
+            //noinspection InfiniteLoopStatement
             while (true) {
                 result.put(ois.readUTF(), ois.readShort());
             }
@@ -108,6 +120,10 @@ public class Repo {
     public void clear() throws IOException {
         eventsFile.delete();
         eventCodesFile.delete();
+    }
+
+    public long space() {
+        return eventCodesFile.length() + eventsFile.length();
     }
 
 }

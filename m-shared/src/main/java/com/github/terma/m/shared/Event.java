@@ -24,6 +24,15 @@ public class Event {
     public String metric;
     public short metricCode;
 
+    /**
+     * Only for reflection {@link Class#newInstance()}
+     * We use that constructor inside {@link com.github.terma.fastselect.FastSelect}
+     */
+    public Event() {
+        timestamp = 0;
+        value = 0;
+    }
+
     public Event(short metricCode, long timestamp, long value) {
         this.metricCode = metricCode;
         this.timestamp = timestamp;
@@ -51,7 +60,6 @@ public class Event {
         if (value != event.value) return false;
         if (metricCode != event.metricCode) return false;
         return metric != null ? metric.equals(event.metric) : event.metric == null;
-
     }
 
     @Override
@@ -67,6 +75,5 @@ public class Event {
     public String toString() {
         return "Event {metric: '" + metric + "', code: " + metricCode + ", timestamp: " + timestamp + ", value: " + value + '}';
     }
-
 
 }

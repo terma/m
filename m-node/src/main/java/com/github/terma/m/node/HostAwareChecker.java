@@ -16,10 +16,12 @@ limitations under the License.
 */
 package com.github.terma.m.node;
 
-abstract class HostAwareChecker implements Checker {
+public abstract class HostAwareChecker implements Checker {
+
+    @SuppressWarnings("WeakerAccess")
     protected final String host;
 
-    HostAwareChecker(String host) {
+    public HostAwareChecker(String host) {
         this.host = host;
     }
 }

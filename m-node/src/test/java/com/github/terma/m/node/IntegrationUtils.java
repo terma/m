@@ -16,19 +16,19 @@ limitations under the License.
 */
 package com.github.terma.m.node;
 
-import com.github.terma.m.shared.Event;
+public class IntegrationUtils {
 
-import java.util.List;
+    public static void runChecker(Checker checker) throws InterruptedException {
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
 
-/**
- * @see Jvm
- * @see com.github.terma.m.node.jmx.Jmx
- * @see Node.com.github.terma.m.node.Node.HostCpu
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeChange
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeCount
- */
-public interface Checker {
+                System.out.println(checker.get());
+            } catch (Exception e) {
+                System.out.println(e);
+            }
 
-    List<Event> get() throws Exception;
+            Thread.sleep(5000);
+        }
+    }
 
 }

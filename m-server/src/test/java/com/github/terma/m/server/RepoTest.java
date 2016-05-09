@@ -16,6 +16,8 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
+import com.github.terma.fastselect.AbstractRequest;
+import com.github.terma.fastselect.FastSelect;
 import com.github.terma.m.shared.Event;
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,6 +31,8 @@ import java.util.Map;
 
 public class RepoTest {
 
+    private FastSelect<Event> fastSelect = Events.createFastSelect();
+
     @Test
     public void storeRestoreEvents() throws IOException {
         Path d = Files.createTempDirectory("aaa");
@@ -36,9 +40,11 @@ public class RepoTest {
 
         repo.addEvents(Collections.singletonList(new Event((short) 1, 12, 988)));
 
+        repo.readEvents(fastSelect);
+
         Assert.assertEquals(
                 Collections.singletonList(new Event((short) 1, 12, 988)),
-                repo.readEvents());
+                fastSelect.select(new AbstractRequest[0]));
     }
 
     @Test

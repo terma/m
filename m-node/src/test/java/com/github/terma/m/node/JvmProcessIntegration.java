@@ -17,18 +17,25 @@ limitations under the License.
 package com.github.terma.m.node;
 
 import com.github.terma.m.shared.Event;
+import org.junit.Assert;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-/**
- * @see Jvm
- * @see com.github.terma.m.node.jmx.Jmx
- * @see Node.com.github.terma.m.node.Node.HostCpu
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeChange
- * @see com.github.terma.m.node.gigaspace.GigaSpaceTypeCount
- */
-public interface Checker {
+public class JvmProcessIntegration {
 
-    List<Event> get() throws Exception;
+    public static void main(String[] args) throws Exception {
+        Map<String, String> params = new HashMap<String, String>() {{
+            put("processPattern", "marker=(JVM_STABI\\w+)");
+            put("metricPrefix", "${host}.${appName}");
+        }};
+
+        Checker checker = new Jvm("localhost", params);
+        List<Event> events = checker.get();
+
+        Assert.assertTrue(events.size() > 0);
+        System.out.println(events);
+    }
 
 }

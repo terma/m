@@ -26,6 +26,10 @@
     {
       "title": "JVM APP2 CPU",
       "metric": "APP2.jvm.cpu"
+    },
+    {
+      "title": "Many Custom Metrics",
+      "metric": "custom"
     }
   ]
 }
