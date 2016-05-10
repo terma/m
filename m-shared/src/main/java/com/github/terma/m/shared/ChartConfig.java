@@ -20,5 +20,6 @@ public class ChartConfig {
 
     public String title;
     public String metric;
+    public String type;
 
 }

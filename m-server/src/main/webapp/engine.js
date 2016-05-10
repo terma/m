@@ -124,11 +124,34 @@ $(function () {
     function loadToChart(chart, chartDiv) {
         $.getJSON('data?metric=' + encodeURIComponent(chart.metric) + '&callback=?', function (data) {
             var series = convertDataToSeries(data);
+
+            var valueFormatter = void 0;
+            if (chart.type === 'gb') {
+                valueFormatter = function (v) {
+                    var kb = 1024;
+                    var mb = 1024 * kb;
+                    var gb = 1024 * mb;
+                    if (v > gb) return Math.round(v / gb) + 'gb';
+                    else if (v > mb) return Math.round(v / mb) + 'mb';
+                    else if (v > kb) return Math.round(v / kb) + 'kb';
+                    return v + 'b';
+                }
+            } else if (chart.type === 'percent') {
+                valueFormatter = function (v) {
+                    return v + '%';
+                }
+            }
+
             chartDiv.highcharts('StockChart', {
                 chart: {zoomType: 'x'},
                 title: {text: chart.title},
                 navigator: {adaptToUpdatedData: false, series: series},
                 scrollbar: {enabled: false},
+                tooltip: {
+                    pointFormatter: valueFormatter ? function () {
+                        return '<span style="color:{point.color}">\u25CF</span> ' + this.series.name + ': <b>' + valueFormatter(this.y) + '</b><br/>';
+                    } : void 0
+                },
                 rangeSelector: {
                     buttons: [
                         {type: 'minute', count: 15, text: '15m'},
@@ -148,7 +171,14 @@ $(function () {
                     },
                     minRange: 60 * 1000 // one hour
                 },
-                yAxis: {floor: 0},
+                yAxis: {
+                    floor: 0,
+                    labels: {
+                        formatter: valueFormatter ? function () {
+                            return valueFormatter(this.value);
+                        } : void 0
+                    }
+                },
                 series: series
             });
             chart.highchart = Highcharts.charts[Highcharts.charts.length - 1];

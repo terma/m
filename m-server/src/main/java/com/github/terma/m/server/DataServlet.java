@@ -29,7 +29,7 @@ import java.util.Map;
 
 public class DataServlet extends HttpServlet {
 
-    private static final int PARTS = 200;
+    private static final int PARTS = 100;
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
