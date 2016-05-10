@@ -52,7 +52,7 @@ import java.util.regex.Pattern;
  * expression.1.expression="simpleAttributeNameOrOperations",
  * </pre>
  */
-class Jmx extends HostAwareChecker {
+public class Jmx extends HostAwareChecker {
 
     private static final Logger LOGGER = Logger.getLogger(Jmx.class.getName());
 

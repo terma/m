@@ -18,6 +18,7 @@ package com.github.terma.m.node;
 
 import com.github.terma.m.node.gigaspace.GigaSpaceTypeChange;
 import com.github.terma.m.node.gigaspace.GigaSpaceTypeCount;
+import com.github.terma.m.node.jmx.Jmx;
 import com.github.terma.m.shared.Event;
 import com.github.terma.m.shared.NodeConfig;
 import com.google.gson.Gson;
@@ -105,6 +106,8 @@ public class Node {
                 checkers.add(new HostNet(nodeConfig.host));
             } else if (name.equals("jvm")) {
                 checkers.add(new Jvm(nodeConfig.host, checkConfig));
+            } else if (name.equals("jmx")) {
+                checkers.add(new Jmx(nodeConfig.host, checkConfig));
             } else if (name.equals("gigaSpaceCount")) {
                 checkers.add(new GigaSpaceTypeCount(nodeConfig.host, checkConfig));
             } else if (name.equals("gigaSpaceChange")) {
