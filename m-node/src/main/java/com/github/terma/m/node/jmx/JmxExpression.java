@@ -34,7 +34,7 @@ abstract class JmxExpression {
                 new JmxGetter(expression.substring(dividePosition + 1)));
     }
 
-    public abstract Long evaluate(JmxConnection jmxConnection) throws JMException, IOException;
+    public abstract Long evaluate(JmxConnection jmxConnection, String objectName) throws JMException, IOException;
 
     private static class JmxGetter extends JmxExpression {
 
@@ -45,13 +45,8 @@ abstract class JmxExpression {
         }
 
         @Override
-        public Long evaluate(JmxConnection jmxConnection) throws JMException, IOException {
-            int attributeStart = expression.lastIndexOf('.');
-            if (attributeStart < 0) throw new IllegalArgumentException("Invalid expression format: " + expression
-                    + " should be beanPath.attribute!");
-            String path = expression.substring(0, attributeStart);
-            String attribute = expression.substring(attributeStart + 1);
-            Object value = jmxConnection.getAttribute(path, attribute);
+        public Long evaluate(JmxConnection jmxConnection, String objectName) throws JMException, IOException {
+            Object value = jmxConnection.getAttribute(objectName, expression);
 
             if (value == null) return null;
             else if (value instanceof Integer) return ((Integer) value).longValue();
@@ -71,11 +66,11 @@ abstract class JmxExpression {
         }
 
         @Override
-        public Long evaluate(JmxConnection jmxConnection) throws JMException, IOException {
-            final Long dividerValue = divider.evaluate(jmxConnection);
+        public Long evaluate(JmxConnection jmxConnection, String objectName) throws JMException, IOException {
+            final Long dividerValue = divider.evaluate(jmxConnection, objectName);
             if (dividerValue == null || dividerValue == 0) return null;
             else {
-                final Long v = value.evaluate(jmxConnection);
+                final Long v = value.evaluate(jmxConnection, objectName);
                 if (v == null) return null;
                 else return v / dividerValue;
             }

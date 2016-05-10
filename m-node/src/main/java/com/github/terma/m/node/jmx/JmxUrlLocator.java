@@ -34,6 +34,8 @@ public abstract class JmxUrlLocator {
     public static JmxUrlLocator create(final Map<String, String> params) {
         if (params.containsKey("processPattern")) {
             return new JmxByProcess(params);
+        } else if (params.containsKey("localJmx")) {
+            return new LocalJmxUrl(params);
         } else if (params.containsKey("jmxHost")) {
             return new JmxUrl(params);
         } else if (params.containsKey("gigaSpaceLocators")) {
@@ -84,6 +86,21 @@ public abstract class JmxUrlLocator {
         @Override
         public List<ValueWithContext<String>> get() {
             return Collections.singletonList(new ValueWithContext<>(jmxUrl, params));
+        }
+
+    }
+
+    private static class LocalJmxUrl extends JmxUrlLocator {
+
+        private final Map<String, String> params;
+
+        public LocalJmxUrl(final Map<String, String> params) {
+            this.params = params;
+        }
+
+        @Override
+        public List<ValueWithContext<String>> get() {
+            return Collections.singletonList(new ValueWithContext<String>(null, params));
         }
 
     }

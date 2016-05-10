@@ -23,37 +23,53 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @SuppressWarnings("WeakerAccess")
 class JmxConnectionImpl implements JmxConnection {
 
-    private final JMXConnector mConnector;
-    private final MBeanServerConnection mMBSC;
+    private final JMXConnector jmxConnector;
+    private final MBeanServerConnection mBeanServerConnection;
 
     public JmxConnectionImpl(String url) throws IOException {
         final JMXServiceURL jmxServiceUrl = new JMXServiceURL(url);
-        mConnector = JMXConnectorFactory.connect(jmxServiceUrl);
-        mMBSC = mConnector.getMBeanServerConnection();
+        jmxConnector = JMXConnectorFactory.connect(jmxServiceUrl);
+        mBeanServerConnection = jmxConnector.getMBeanServerConnection();
+    }
+
+    public JmxConnectionImpl(JMXConnector jmxConnector) throws IOException {
+        this.jmxConnector = jmxConnector;
+        mBeanServerConnection = this.jmxConnector.getMBeanServerConnection();
+    }
+
+    public JmxConnectionImpl(MBeanServerConnection mBeanServerConnection) throws IOException {
+        this.jmxConnector = null;
+        this.mBeanServerConnection = mBeanServerConnection;
+    }
+
+    @Override
+    public List<String> findObjectNames(String query) throws IOException {
+        final Set<ObjectName> objectNames = mBeanServerConnection.queryNames(JmxUtils.createObjectName(query), null);
+        final List<String> result = new ArrayList<>();
+        for (ObjectName objectName : objectNames) {
+            result.add(objectName.toString());
+        }
+        return result;
     }
 
     @Override
     public Object getAttribute(String objectName, String attribute) throws JMException, IOException {
-        final Set<ObjectName> objectNames = mMBSC.queryNames(JmxUtils.createObjectName(objectName), null);
-        if (objectNames.size() > 0) {
-            final ObjectName objectName1 = objectNames.iterator().next();
-            try {
-                return mMBSC.getAttribute(objectName1, attribute);
-            } catch (JMException e) {
-                throw new IllegalArgumentException("Can't get attribute: " + attribute + " on " + objectName1, e);
-            }
-        } else {
-            return null;
+        try {
+            return mBeanServerConnection.getAttribute(new ObjectName(objectName), attribute);
+        } catch (JMException e) {
+            throw new IllegalArgumentException("Can't get attribute: " + attribute + " on " + objectName, e);
         }
     }
 
     @Override
     public void close() throws IOException {
-        mConnector.close();
+        if (jmxConnector != null) jmxConnector.close();
     }
 }

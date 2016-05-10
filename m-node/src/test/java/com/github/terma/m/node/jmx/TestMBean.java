@@ -16,15 +16,6 @@ limitations under the License.
 */
 package com.github.terma.m.node.jmx;
 
-import javax.management.JMException;
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.List;
-
-public interface JmxConnection extends Closeable {
-
-    List<String> findObjectNames(String query) throws IOException;
-
-    Object getAttribute(String ojectName, String attribute) throws JMException, IOException;
-
+public interface TestMBean {
+    Long getValue();
 }

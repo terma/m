@@ -30,54 +30,54 @@ public class JmxExpressionTest {
 
     @Test
     public void evaluateLongAttribute() throws IOException, JMException {
-        JmxExpression jmxExpression1 = JmxExpression.parse("package:type=Bean.attribute1");
+        JmxExpression jmxExpression1 = JmxExpression.parse("attribute1");
         when(jmxConnection.getAttribute(anyString(), anyString())).thenReturn(0L);
-        Assert.assertEquals(new Long(0), jmxExpression1.evaluate(jmxConnection));
+        Assert.assertEquals(new Long(0), jmxExpression1.evaluate(jmxConnection, "package:type=Bean"));
 
-        JmxExpression jmxExpression2 = JmxExpression.parse("package:type=Bean.attribute2");
+        JmxExpression jmxExpression2 = JmxExpression.parse("attribute2");
         when(jmxConnection.getAttribute(anyString(), anyString())).thenReturn(Long.MAX_VALUE);
-        Assert.assertEquals(Long.valueOf(Long.MAX_VALUE), jmxExpression2.evaluate(jmxConnection));
+        Assert.assertEquals(Long.valueOf(Long.MAX_VALUE), jmxExpression2.evaluate(jmxConnection, "package:type=Bean"));
     }
 
     @Test
     public void evaluateIntegerAttribute() throws IOException, JMException {
-        JmxExpression jmxExpression = JmxExpression.parse("package:type=Bean.attribute1");
+        JmxExpression jmxExpression = JmxExpression.parse("attribute1");
         when(jmxConnection.getAttribute(anyString(), anyString())).thenReturn(12);
-        Assert.assertEquals(new Long(12), jmxExpression.evaluate(jmxConnection));
+        Assert.assertEquals(new Long(12), jmxExpression.evaluate(jmxConnection, "package:type=Bean"));
     }
 
     @Test
     public void evaluateDivideExpression() throws IOException, JMException {
-        JmxExpression jmxExpression = JmxExpression.parse("package:type=Bean.a/package:type=Bean.b");
+        JmxExpression jmxExpression = JmxExpression.parse("a/b");
         when(jmxConnection.getAttribute(anyString(), eq("a"))).thenReturn(100);
         when(jmxConnection.getAttribute(anyString(), eq("b"))).thenReturn(20);
-        Assert.assertEquals(new Long(5), jmxExpression.evaluate(jmxConnection));
+        Assert.assertEquals(new Long(5), jmxExpression.evaluate(jmxConnection, "package:type=Bean"));
     }
 
     @Test
     public void evaluateDivideExpressionToNullIfDividerZero() throws IOException, JMException {
-        JmxExpression jmxExpression = JmxExpression.parse("package:type=Bean.a/package:type=Bean.b");
+        JmxExpression jmxExpression = JmxExpression.parse("a/b");
         when(jmxConnection.getAttribute(anyString(), eq("a"))).thenReturn(100);
         when(jmxConnection.getAttribute(anyString(), eq("b"))).thenReturn(0);
-        Assert.assertNull(jmxExpression.evaluate(jmxConnection));
+        Assert.assertNull(jmxExpression.evaluate(jmxConnection, "package:type=Bean"));
     }
 
     @Test
     public void evaluateDivideExpressionToNullIfDividerOneOperandIsNull() throws IOException, JMException {
-        JmxExpression jmxExpression = JmxExpression.parse("package:type=Bean.a/package:type=Bean.b");
+        JmxExpression jmxExpression = JmxExpression.parse("a/b");
         when(jmxConnection.getAttribute(anyString(), eq("a"))).thenReturn(null);
         when(jmxConnection.getAttribute(anyString(), eq("b"))).thenReturn(5);
-        Assert.assertNull(jmxExpression.evaluate(jmxConnection));
+        Assert.assertNull(jmxExpression.evaluate(jmxConnection, "package:type=Bean"));
 
         when(jmxConnection.getAttribute(anyString(), eq("a"))).thenReturn(100);
         when(jmxConnection.getAttribute(anyString(), eq("b"))).thenReturn(null);
-        Assert.assertNull(jmxExpression.evaluate(jmxConnection));
+        Assert.assertNull(jmxExpression.evaluate(jmxConnection, "package:type=Bean"));
     }
 
     @Test
     public void evaluateAttributeWithNullValueToNull() throws IOException, JMException {
-        JmxExpression jmxExpression1 = JmxExpression.parse("package:type=Bean.attribute1");
-        Assert.assertNull(jmxExpression1.evaluate(jmxConnection));
+        JmxExpression jmxExpression1 = JmxExpression.parse("attribute1");
+        Assert.assertNull(jmxExpression1.evaluate(jmxConnection, "package:type=Bean"));
     }
 
 }

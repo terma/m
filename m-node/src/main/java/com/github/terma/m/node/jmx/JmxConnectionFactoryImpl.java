@@ -17,12 +17,14 @@ limitations under the License.
 package com.github.terma.m.node.jmx;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 
 public class JmxConnectionFactoryImpl implements JmxConnectionFactory {
 
     @Override
     public JmxConnection connect(String url) throws IOException {
-        return new JmxConnectionImpl(url);
+        if (url == null) return new JmxConnectionImpl(ManagementFactory.getPlatformMBeanServer());
+        else return new JmxConnectionImpl(url);
     }
 
     @Override

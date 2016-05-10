@@ -16,15 +16,13 @@ limitations under the License.
 */
 package com.github.terma.m.node.jmx;
 
-import javax.management.JMException;
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.List;
+class Test implements TestMBean {
 
-public interface JmxConnection extends Closeable {
+    public Test() {
+    }
 
-    List<String> findObjectNames(String query) throws IOException;
-
-    Object getAttribute(String ojectName, String attribute) throws JMException, IOException;
-
+    @Override
+    public Long getValue() {
+        return 42L;
+    }
 }

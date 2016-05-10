@@ -22,10 +22,7 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -37,15 +34,67 @@ public class JmxTest {
     private JmxConnectionFactory jmxConnectionFactory = mock(JmxConnectionFactory.class);
 
     @Test
-    public void getEventForEachExpression() throws Exception {
-        Map<String, String> params = new HashMap<String, String>() {{
-            put("expression.eventName1", "bean.moma");
-            put("expression.eventName2", "bean.superBean");
+    public void getEvent() throws Exception {
+        Map<String, String> params = new TreeMap<String, String>() {{
+            put("expression.1.metric", "eventName1");
+            put("expression.1.query", "beanQuery");
+            put("expression.1.expression", "moma");
             put("jmxHost", "host");
             put("jmxPort", "12");
         }};
 
         when(jmxConnectionFactory.connect(anyString())).thenReturn(jmxConnection);
+        when(jmxConnection.findObjectNames(anyString())).thenReturn(Arrays.asList("objectName"));
+        when(jmxConnection.getAttribute(anyString(), anyString())).thenReturn(12).thenReturn(23);
+
+        Jmx jmx = new Jmx(null, params, jmxConnectionFactory, systemTime);
+
+        Assert.assertEquals(Arrays.asList(new Event("eventName1", 0, 12)), jmx.get());
+
+        verify(jmxConnection).findObjectNames("beanQuery");
+        verify(jmxConnection).getAttribute("objectName", "moma");
+    }
+
+    @Test
+    public void getEventForEachMBean() throws Exception {
+        Map<String, String> params = new TreeMap<String, String>() {{
+            put("expression.1.metric", "eventName1");
+            put("expression.1.query", "beanQuery");
+            put("expression.1.expression", "moma");
+            put("jmxHost", "host");
+            put("jmxPort", "12");
+        }};
+
+        when(jmxConnectionFactory.connect(anyString())).thenReturn(jmxConnection);
+        when(jmxConnection.findObjectNames(anyString())).thenReturn(Arrays.asList("obj1", "obj2"));
+        when(jmxConnection.getAttribute(anyString(), anyString())).thenReturn(12).thenReturn(23);
+
+        Jmx jmx = new Jmx(null, params, jmxConnectionFactory, systemTime);
+
+        Assert.assertEquals(Arrays.asList(
+                new Event("eventName1", 0, 12), new Event("eventName1", 0, 23)),
+                jmx.get());
+
+        verify(jmxConnection).findObjectNames("beanQuery");
+        verify(jmxConnection).getAttribute("obj1", "moma");
+        verify(jmxConnection).getAttribute("obj2", "moma");
+    }
+
+    @Test
+    public void getEventForEachExpression() throws Exception {
+        Map<String, String> params = new TreeMap<String, String>() {{
+            put("expression.1.metric", "eventName1");
+            put("expression.1.query", "bean");
+            put("expression.1.expression", "moma");
+            put("expression.2.metric", "eventName2");
+            put("expression.2.query", "bean");
+            put("expression.2.expression", "superBean");
+            put("jmxHost", "host");
+            put("jmxPort", "12");
+        }};
+
+        when(jmxConnectionFactory.connect(anyString())).thenReturn(jmxConnection);
+        when(jmxConnection.findObjectNames(anyString())).thenReturn(Arrays.asList("1"));
         when(jmxConnection.getAttribute(anyString(), anyString())).thenReturn(12).thenReturn(23);
 
         Jmx jmx = new Jmx(null, params, jmxConnectionFactory, systemTime);
@@ -54,45 +103,26 @@ public class JmxTest {
                 Arrays.asList(new Event("eventName1", 0, 12), new Event("eventName2", 0, 23)),
                 jmx.get()
         );
-
-        verify(jmxConnection).getAttribute("bean", "moma");
-        verify(jmxConnection).getAttribute("bean", "superBean");
-    }
-
-    @Test
-    public void getEventAsMBeanAttributeValueWhenJmxHostPortSpecified() throws Exception {
-        Map<String, String> params = new HashMap<String, String>() {{
-            put("expression.eventName", "bean.attribute");
-            put("jmxHost", "host");
-            put("jmxPort", "12");
-        }};
-
-        when(jmxConnectionFactory.connect(anyString())).thenReturn(jmxConnection);
-        when(jmxConnection.getAttribute(anyString(), anyString())).thenReturn(12);
-
-        Jmx jmx = new Jmx(null, params, jmxConnectionFactory, systemTime);
-
-        Assert.assertEquals(
-                Collections.singletonList(new Event("eventName", 0, 12)),
-                jmx.get()
-        );
     }
 
     @Test
     public void getEventWithEnrichedMetric() throws Exception {
         Map<String, String> params = new HashMap<String, String>() {{
-            put("expression.${jmxHost}.eventName", "bean.attribute");
-            put("jmxHost", "host");
+            put("expression.1.metric", "${jmxHost}.${objectName}");
+            put("expression.1.query", "bean");
+            put("expression.1.expression", "attribute");
+            put("jmxHost", "host1");
             put("jmxPort", "12");
         }};
 
         when(jmxConnectionFactory.connect(anyString())).thenReturn(jmxConnection);
+        when(jmxConnection.findObjectNames(anyString())).thenReturn(Collections.singletonList("objectName1"));
         when(jmxConnection.getAttribute(anyString(), anyString())).thenReturn(12);
 
         Jmx jmx = new Jmx(null, params, jmxConnectionFactory, systemTime);
 
         Assert.assertEquals(
-                Collections.singletonList(new Event("host.eventName", 0, 12)),
+                Collections.singletonList(new Event("host1.objectName1", 0, 12)),
                 jmx.get()
         );
     }
@@ -100,12 +130,15 @@ public class JmxTest {
     @Test
     public void getEventWithComplexExpression() throws Exception {
         Map<String, String> params = new HashMap<String, String>() {{
-            put("expression.eventName", "bean.a/bean1.m");
+            put("expression.1.metric", "eventName");
+            put("expression.1.query", "bean");
+            put("expression.1.expression", "a/m");
             put("jmxHost", "host");
             put("jmxPort", "12");
         }};
 
         when(jmxConnectionFactory.connect(anyString())).thenReturn(jmxConnection);
+        when(jmxConnection.findObjectNames(anyString())).thenReturn(Arrays.asList("b"));
         when(jmxConnection.getAttribute(anyString(), anyString())).thenReturn(50).thenReturn(200);
 
         Jmx jmx = new Jmx(null, params, jmxConnectionFactory, systemTime);
