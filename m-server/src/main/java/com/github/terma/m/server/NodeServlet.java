@@ -28,8 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class NodeServlet extends HttpServlet {
 
@@ -41,7 +39,6 @@ public class NodeServlet extends HttpServlet {
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
         final List<Event> newEvents = GSON.fromJson(IOUtils.toString(request.getInputStream()), EVENTS_TYPE);
-        System.out.println(newEvents);
         EventsFactory.get().add(newEvents);
     }
 
