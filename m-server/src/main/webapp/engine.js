@@ -185,16 +185,6 @@ $(function () {
         });
     }
 
-    $('#clear').click(function () {
-        if (confirm('Do you want to remove all metric data?')) {
-            $.post('data/clear', {}, function () {
-                charts.forEach(function (chart) {
-                    reload(chart)
-                });
-            });
-        }
-    });
-
     function checkSpace() {
         $.getJSON('space', function (space) {
             $('#events').text(space.events);
@@ -212,6 +202,16 @@ $(function () {
             charts = config;
             charts.forEach(load);
             startSpaceChecker();
+
+            $('#clear').click(function () {
+                if (confirm('Do you want to remove all metric data?')) {
+                    $.post('data/clear', {}, function () {
+                        charts.forEach(function (chart) {
+                            reload(chart)
+                        });
+                    });
+                }
+            });
         });
     });
 
