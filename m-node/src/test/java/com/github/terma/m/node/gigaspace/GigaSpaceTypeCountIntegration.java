@@ -21,15 +21,18 @@ import com.github.terma.m.node.IntegrationUtils;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GigaSpaceTypeCountIntegritiy {
+public class GigaSpaceTypeCountIntegration {
 
     public static void main(String[] args) throws Exception {
+        long timeout = 5000;
+        if (args.length > 0) timeout = Long.parseLong(args[0]);
+
         Map<String, String> params = new HashMap<String, String>() {{
             put("gigaSpaceUrl", "jini:/*/*/gs10?locators=127.0.0.1:4700");
             put("metric", "${typeName}");
         }};
 
-        IntegrationUtils.runChecker(new GigaSpaceTypeCount("localhost", params));
+        IntegrationUtils.runChecker(new GigaSpaceTypeCount("localhost", params), timeout);
     }
 
 }

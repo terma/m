@@ -19,6 +19,13 @@ package com.github.terma.m.node;
 public class IntegrationUtils {
 
     public static void runChecker(Checker checker) throws InterruptedException {
+        runChecker(checker, 5000);
+    }
+
+    public static void runChecker(Checker checker, long timeout) throws InterruptedException {
+        System.out.println("Run checker: " + checker);
+        System.out.println("Timeout: " + timeout);
+
         while (!Thread.currentThread().isInterrupted()) {
             try {
 
@@ -27,7 +34,7 @@ public class IntegrationUtils {
                 System.out.println(e);
             }
 
-            Thread.sleep(5000);
+            Thread.sleep(timeout);
         }
     }
 

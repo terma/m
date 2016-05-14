@@ -35,15 +35,22 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static java.util.Collections.singletonList;
 
 public class Node {
 
+    private static final Logger LOGGER = Logger.getLogger(Node.class.getName());
+
     private static final Sigar sigar = new Sigar();
 
-    private static void send(String serverHost, int serverPort, String context, List<Event> events) throws IOException {
-        HttpURLConnection connection = (HttpURLConnection) new URL("http", serverHost, serverPort, context + "/node").openConnection();
+    private static void send(
+            final String serverHost, final int serverPort, final String context,
+            final List<Event> events) throws IOException {
+        final HttpURLConnection connection = (HttpURLConnection) new URL("http", serverHost,
+                serverPort, context + "/node").openConnection();
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
         connection.setRequestProperty("Content-Type", "text/json");
@@ -60,43 +67,50 @@ public class Node {
     public static void main(String[] args) throws IOException {
         String configJson = IOUtils.toString(Node.class.getResourceAsStream("/config.json"));
         NodeConfig nodeConfig = new Gson().fromJson(configJson, NodeConfig.class);
-        System.out.println("Use config: " + configJson);
+        LOGGER.info("Starting node with config: " + configJson);
         run(nodeConfig);
     }
 
-    public static void run(NodeConfig nodeConfig) {
+    public static void run(final NodeConfig nodeConfig) {
+        final long millisToRefresh = TimeUnit.SECONDS.toMillis(nodeConfig.secToRefresh);
         final List<Checker> checkers = buildCheckers(nodeConfig);
-        startCheck(nodeConfig, checkers);
-    }
 
-    public static void startCheck(NodeConfig nodeConfig, List<Checker> checkers) {
         while (true) {
-            List<Event> events = new ArrayList<>();
-            for (Checker checker : checkers) {
+            final long cycleStart = System.currentTimeMillis();
+            final List<Event> events = new ArrayList<>();
+            for (final Checker checker : checkers) {
+                final long checkStart = System.currentTimeMillis();
                 try {
                     events.addAll(checker.get());
+                    LOGGER.info("Check: " + checker + ", done: " + (System.currentTimeMillis() - checkStart) + " msec");
                 } catch (Exception e) {
+                    LOGGER.log(Level.SEVERE, "Check: " + checker + ", fail: "
+                            + (System.currentTimeMillis() - checkStart) + " msec", e);
                     e.printStackTrace();
                 }
             }
+            LOGGER.info("Cycle done, checks: " + checkers.size() + ", events: " + events.size()
+                    + " in: " + (System.currentTimeMillis() - cycleStart) + " msec");
 
+            final long sendStart = System.currentTimeMillis();
             try {
                 send(nodeConfig.serverHost, nodeConfig.serverPort, nodeConfig.serverContext, events);
-            } catch (IOException e) {
-                e.printStackTrace();
+            } catch (final IOException exception) {
+                exception.printStackTrace();
             }
+            LOGGER.info("Send, events: " + events.size() + " done: " + (System.currentTimeMillis() - sendStart) + " msec");
 
             try {
-                Thread.sleep(TimeUnit.SECONDS.toMillis(nodeConfig.secToRefresh));
+                Thread.sleep(millisToRefresh);
             } catch (InterruptedException e) {
                 return;
             }
         }
     }
 
-    private static List<Checker> buildCheckers(NodeConfig nodeConfig) {
-        List<Checker> checkers = new ArrayList<>();
-        for (Map<String, String> checkConfig : nodeConfig.checks) {
+    private static List<Checker> buildCheckers(final NodeConfig nodeConfig) {
+        final List<Checker> checkers = new ArrayList<>();
+        for (final Map<String, String> checkConfig : nodeConfig.checks) {
             final String name = checkConfig.get("name");
             if (name.equals("host.mem")) {
                 checkers.add(new HostMem(nodeConfig.host));
@@ -117,7 +131,7 @@ public class Node {
         return checkers;
     }
 
-    static class HostMem extends HostAwareChecker {
+    private static class HostMem extends HostAwareChecker {
 
         HostMem(String host) {
             super(host);
@@ -132,7 +146,7 @@ public class Node {
         }
     }
 
-    static class HostNet extends HostAwareChecker {
+    private static class HostNet extends HostAwareChecker {
         HostNet(String host) {
             super(host);
         }
@@ -152,7 +166,7 @@ public class Node {
         }
     }
 
-    static class HostCpu extends HostAwareChecker {
+    private static class HostCpu extends HostAwareChecker {
         HostCpu(String host) {
             super(host);
         }

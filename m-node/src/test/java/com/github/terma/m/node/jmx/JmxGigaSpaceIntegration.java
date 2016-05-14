@@ -29,6 +29,9 @@ import java.util.Map;
 public class JmxGigaSpaceIntegration {
 
     public static void main(String[] args) throws Exception {
+        long timeout = 5000;
+        if (args.length > 0) timeout = Long.parseLong(args[0]);
+
         System.setProperty("java.library.path", "/Users/terma/Downloads/sigar-1.6.4-native");
 
         Map<String, String> params = new HashMap<String, String>() {{
@@ -36,7 +39,7 @@ public class JmxGigaSpaceIntegration {
             put("gigaSpaceLocators", "127.0.0.1:4700");
         }};
 
-        IntegrationUtils.runChecker(new Jmx(null, params));
+        IntegrationUtils.runChecker(new Jmx(null, params), timeout);
     }
 
 
