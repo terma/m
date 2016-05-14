@@ -23,11 +23,14 @@ import javax.management.openmbean.CompositeDataSupport;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static com.github.terma.m.node.StringUtils.enrich;
 
 @SuppressWarnings("WeakerAccess")
 class Jvm extends HostAwareChecker {
+
+    private static final Logger LOGGER = Logger.getLogger(Jvm.class.getName());
 
     private static final String MEM_OBJECT_NAME = "java.lang:type=Memory";
     private static final String CPU_OBJECT_NAME = "java.lang:type=OperatingSystem";
@@ -43,10 +46,18 @@ class Jvm extends HostAwareChecker {
     }
 
     public List<Event> get() throws Exception {
-        List<Event> events = new ArrayList<Event>();
+        List<Event> events = new ArrayList<>();
 
-        for (ValueWithContext<String> jmxUrl : jmxUrlLocator.get()) {
+        final long startUrls = System.currentTimeMillis();
+        final List<ValueWithContext<String>> jmxUrls = jmxUrlLocator.get();
+        LOGGER.info("Get JMX URLs: " + jmxUrls.size() + " in " + (System.currentTimeMillis() - startUrls) + " msec");
+
+        for (ValueWithContext<String> jmxUrl : jmxUrls) {
+            final long startConnect = System.currentTimeMillis();
             try (JmxConnection jmxConnection = jmxConnectionFactory.connect(jmxUrl.getValue())) {
+                LOGGER.info("Connect to JMX: " + jmxUrl.getValue() + " in " + (System.currentTimeMillis() - startConnect) + " msec");
+
+                final long startExpression = System.currentTimeMillis();
                 final CompositeDataSupport heapMemoryUsage = (CompositeDataSupport) jmxConnection.getAttribute(MEM_OBJECT_NAME, "HeapMemoryUsage");
 
                 Map<String, String> context = jmxUrl.getContext();
@@ -61,6 +72,8 @@ class Jvm extends HostAwareChecker {
 
                 final long cpuLoad = Math.round(((Double) jmxConnection.getAttribute(CPU_OBJECT_NAME, "ProcessCpuLoad")) * 100);
                 events.add(new Event(enrich(metricPrefix, context) + ".jvm.cpu", cpuLoad));
+                LOGGER.info("Eval events: " + events.size()
+                        + " in " + (System.currentTimeMillis() - startExpression) + " msec");
             }
         }
         return events;

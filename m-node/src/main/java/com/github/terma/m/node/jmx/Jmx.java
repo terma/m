@@ -96,31 +96,37 @@ public class Jmx extends HostAwareChecker {
     @Override
     public List<Event> get() throws Exception {
         final List<Event> events = new ArrayList<>();
-        for (final ValueWithContext<String> jmxUrl : jmxUrlLocator.get()) {
-            getForUrl(jmxUrl, events);
-        }
+
+        final long startUrls = System.currentTimeMillis();
+        final List<ValueWithContext<String>> jmxUrls = jmxUrlLocator.get();
+        LOGGER.info("Get JMX URLs: " + jmxUrls.size() + " in " + (System.currentTimeMillis() - startUrls) + " msec");
+
+        for (final ValueWithContext<String> jmxUrl : jmxUrls) getForUrl(jmxUrl, events);
         return events;
     }
 
     private void getForUrl(ValueWithContext<String> jmxUrl, List<Event> events) throws IOException, JMException {
-        LOGGER.info("Getting data from " + jmxUrl.getValue() + "...");
+        final long startConnect = System.currentTimeMillis();
         try (final JmxConnection jmxConnection = jmxConnectionFactory.connect(jmxUrl.getValue())) {
+            LOGGER.info("Connect to JMX: " + jmxUrl.getValue() + " in " + (System.currentTimeMillis() - startConnect) + " msec");
 
-            final Map<String, String> contex = jmxUrl.getContext();
-
+            final long startExpression = System.currentTimeMillis();
+            final Map<String, String> context = jmxUrl.getContext();
             for (ExpressionConfig expressionConfig : expressionConfigs) {
                 List<String> objectNames = jmxConnection.findObjectNames(expressionConfig.query);
 
                 for (String objectName : objectNames) {
                     Long value = expressionConfig.expression.evaluate(jmxConnection, objectName);
                     if (value != null) {
-                        contex.put("objectName", objectName);
+                        context.put("objectName", objectName);
 
-                        String metric = StringUtils.enrich(expressionConfig.metric, contex);
+                        String metric = StringUtils.enrich(expressionConfig.metric, context);
                         events.add(new Event(metric, systemTime.getMillis(), value));
                     }
                 }
             }
+            LOGGER.info("Eval " + expressionConfigs.size() + " expressions, events: " + events.size()
+                    + " in " + (System.currentTimeMillis() - startExpression) + " msec");
         }
     }
 
