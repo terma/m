@@ -31,7 +31,7 @@ import java.util.Map;
 
 public class RepoTest {
 
-    private FastSelect<Event> fastSelect = Events.createFastSelect();
+    private FastSelect<Event> fastSelect = EventsImpl.createFastSelect();
 
     @Test
     public void storeRestoreEvents() throws IOException {

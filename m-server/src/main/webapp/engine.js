@@ -39,20 +39,24 @@ $(function () {
         var maxParameter = max != void 0 ? '&max=' + max : '';
 
         $.getJSON('data?metric=' + encodeURIComponent(chart.metric) + minParameter + maxParameter + '&callback=?', function (data) {
-            for (var metric in data) {
-                if (!metric) continue;
+            if (data === 'restoring-failed' || data === 'restoring-in-progress') {
 
-                var series = void 0;
-                for (var s = 0; s < highchart.series.length; s++) {
-                    if (highchart.series[s].name === metric) series = highchart.series[s];
+            } else {
+                for (var metric in data) {
+                    if (!metric) continue;
+
+                    var series = void 0;
+                    for (var s = 0; s < highchart.series.length; s++) {
+                        if (highchart.series[s].name === metric) series = highchart.series[s];
+                    }
+
+                    var seriesData = [];
+                    data[metric].forEach(function (tAndV) {
+                        seriesData.push(convertDataToPoint(tAndV));
+                    });
+
+                    series.setData(seriesData);
                 }
-
-                var seriesData = [];
-                data[metric].forEach(function (tAndV) {
-                    seriesData.push(convertDataToPoint(tAndV));
-                });
-
-                series.setData(seriesData);
             }
         });
     }
@@ -187,8 +191,14 @@ $(function () {
 
     function checkSpace() {
         $.getJSON('space', function (space) {
-            $('#events').text(space.events);
-            $('#space').text(Math.round(space.space / 1024 / 1024) + 'Mb');
+            if (space === 'restoring-failed') {
+                $('#events').text('<b>error when restoring</b>');
+            } else if (space === 'restoring-in-progress') {
+                $('#events').text('<b>restoring</b>');
+            } else {
+                $('#events').text(space.events);
+                $('#space').text(Math.round(space.space / 1024 / 1024) + 'Mb');
+            }
         });
     }
 

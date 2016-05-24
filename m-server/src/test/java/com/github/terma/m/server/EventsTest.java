@@ -30,11 +30,11 @@ import static java.util.Collections.singletonList;
 
 public class EventsTest {
 
-    private final Events events = new Events(null);
+    private final EventsImpl events = new EventsImpl(null);
 
     @Test
     public void supportNullRepo() throws IOException {
-        new Events(null);
+        new EventsImpl(null);
     }
 
     @Test
@@ -47,12 +47,12 @@ public class EventsTest {
         events.add(singletonList(new Event("a", 55, 901)));
 
         Assert.assertEquals(
-                new HashMap<String, List<Events.Point>>() {{
+                new HashMap<String, List<EventsImpl.Point>>() {{
                     put("a", Arrays.asList(
-                            new Events.Point(50, 901),
-                            new Events.Point(67),
-                            new Events.Point(84),
-                            new Events.Point(101)
+                            new EventsImpl.Point(50, 901),
+                            new EventsImpl.Point(67),
+                            new EventsImpl.Point(84),
+                            new EventsImpl.Point(101)
                     ));
                 }},
                 events.get(3, 50, 100, ""));
@@ -67,12 +67,12 @@ public class EventsTest {
         ));
 
         Assert.assertEquals(
-                new HashMap<String, List<Events.Point>>() {{
+                new HashMap<String, List<EventsImpl.Point>>() {{
                     put("a", Arrays.asList(
-                            new Events.Point(50, 100),
-                            new Events.Point(67),
-                            new Events.Point(84),
-                            new Events.Point(101)
+                            new EventsImpl.Point(50, 100),
+                            new EventsImpl.Point(67),
+                            new EventsImpl.Point(84),
+                            new EventsImpl.Point(101)
                     ));
                 }},
                 events.get(3, 50, 100, ""));
@@ -87,12 +87,12 @@ public class EventsTest {
         ));
 
         Assert.assertEquals(
-                new HashMap<String, List<Events.Point>>() {{
+                new HashMap<String, List<EventsImpl.Point>>() {{
                     put("a", Arrays.asList(
-                            new Events.Point(50, 1),
-                            new Events.Point(67),
-                            new Events.Point(84),
-                            new Events.Point(101)
+                            new EventsImpl.Point(50, 1),
+                            new EventsImpl.Point(67),
+                            new EventsImpl.Point(84),
+                            new EventsImpl.Point(101)
                     ));
                 }},
                 events.get(3, 50, 100, ""));
@@ -108,12 +108,12 @@ public class EventsTest {
         ));
 
         Assert.assertEquals(
-                new HashMap<String, List<Events.Point>>() {{
+                new HashMap<String, List<EventsImpl.Point>>() {{
                     put("a", Arrays.asList(
-                            new Events.Point(25, 500),
-                            new Events.Point(50, 1),
-                            new Events.Point(75),
-                            new Events.Point(100)
+                            new EventsImpl.Point(25, 500),
+                            new EventsImpl.Point(50, 1),
+                            new EventsImpl.Point(75),
+                            new EventsImpl.Point(100)
                     ));
                 }},
                 events.get(3, 25, 100, ""));
@@ -128,20 +128,20 @@ public class EventsTest {
 
         Assert.assertEquals(Collections.EMPTY_MAP, events.get(3, 0, 200, "nona"));
         Assert.assertEquals(
-                new HashMap<String, List<Events.Point>>() {{
-                    put("metric.host1.b", Arrays.asList(new Events.Point(50, 1), new Events.Point(67), new Events.Point(84), new Events.Point(101)));
-                    put("metric.host1.c.used", Arrays.asList(new Events.Point(50), new Events.Point(67), new Events.Point(84, 1), new Events.Point(101)));
+                new HashMap<String, List<EventsImpl.Point>>() {{
+                    put("metric.host1.b", Arrays.asList(new EventsImpl.Point(50, 1), new EventsImpl.Point(67), new EventsImpl.Point(84), new EventsImpl.Point(101)));
+                    put("metric.host1.c.used", Arrays.asList(new EventsImpl.Point(50), new EventsImpl.Point(67), new EventsImpl.Point(84, 1), new EventsImpl.Point(101)));
                 }},
                 events.get(3, 50, 100, ""));
         Assert.assertEquals(
-                new HashMap<String, List<Events.Point>>() {{
-                    put("metric.host1.b", Arrays.asList(new Events.Point(50, 1), new Events.Point(67), new Events.Point(84), new Events.Point(101)));
-                    put("metric.host1.c.used", Arrays.asList(new Events.Point(50), new Events.Point(67), new Events.Point(84, 1), new Events.Point(101)));
+                new HashMap<String, List<EventsImpl.Point>>() {{
+                    put("metric.host1.b", Arrays.asList(new EventsImpl.Point(50, 1), new EventsImpl.Point(67), new EventsImpl.Point(84), new EventsImpl.Point(101)));
+                    put("metric.host1.c.used", Arrays.asList(new EventsImpl.Point(50), new EventsImpl.Point(67), new EventsImpl.Point(84, 1), new EventsImpl.Point(101)));
                 }},
                 events.get(3, 50, 100, null));
         Assert.assertEquals(
-                new HashMap<String, List<Events.Point>>() {{
-                    put("metric.host1.c.used", Arrays.asList(new Events.Point(50), new Events.Point(67), new Events.Point(84, 1), new Events.Point(101)));
+                new HashMap<String, List<EventsImpl.Point>>() {{
+                    put("metric.host1.c.used", Arrays.asList(new EventsImpl.Point(50), new EventsImpl.Point(67), new EventsImpl.Point(84, 1), new EventsImpl.Point(101)));
                 }},
                 events.get(3, 50, 100, ".c.used"));
     }
@@ -156,9 +156,9 @@ public class EventsTest {
 
         Assert.assertEquals(Collections.EMPTY_MAP, events.get(3, 0, 200, "omeba"));
         Assert.assertEquals(
-                new HashMap<String, List<Events.Point>>() {{
-                    put("metric.host1.c.used", Arrays.asList(new Events.Point(50, 10), new Events.Point(67), new Events.Point(84), new Events.Point(101)));
-                    put("metric.host2.c.used", Arrays.asList(new Events.Point(50), new Events.Point(67), new Events.Point(84, 1), new Events.Point(101)));
+                new HashMap<String, List<EventsImpl.Point>>() {{
+                    put("metric.host1.c.used", Arrays.asList(new EventsImpl.Point(50, 10), new EventsImpl.Point(67), new EventsImpl.Point(84), new EventsImpl.Point(101)));
+                    put("metric.host2.c.used", Arrays.asList(new EventsImpl.Point(50), new EventsImpl.Point(67), new EventsImpl.Point(84, 1), new EventsImpl.Point(101)));
                 }},
                 events.get(3, 50, 100, "host\\d+.c"));
     }
@@ -168,8 +168,8 @@ public class EventsTest {
         events.add(singletonList(new Event("metric.b", 50, 1)));
 
         Assert.assertEquals(
-                new HashMap<String, List<Events.Point>>() {{
-                    put("metric.b", Arrays.asList(new Events.Point(50, 1), new Events.Point(67, null), new Events.Point(84, null), new Events.Point(101, null)));
+                new HashMap<String, List<EventsImpl.Point>>() {{
+                    put("metric.b", Arrays.asList(new EventsImpl.Point(50, 1), new EventsImpl.Point(67, null), new EventsImpl.Point(84, null), new EventsImpl.Point(101, null)));
                 }},
                 events.get(3, 50, 100, null));
     }

@@ -16,23 +16,20 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
-import com.github.terma.m.shared.Config;
-
 /**
  * Thread safe
  */
-// todo this is not a factory please rename
+@SuppressWarnings("WeakerAccess")
 class EventsFactory {
 
-    private static final Events EVENTS;
+    private final String dataPath;
 
-    static {
-        final String dataPath = Config.readConfig().dataPath;
-        EVENTS = new Events(dataPath);
+    EventsFactory(final String dataPath) {
+        this.dataPath = dataPath;
     }
 
-    public static Events get() {
-        return EVENTS;
+    public Events createInstance() {
+        return new EventsImpl(dataPath);
     }
 
 }

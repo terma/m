@@ -37,17 +37,22 @@ public class DataServlet extends HttpServlet {
         final String minString = request.getParameter("min");
         final String maxString = request.getParameter("max");
 
-        final long min = minString != null ? Long.parseLong(minString) : EventsFactory.get().min();
-        final long max = maxString != null ? Long.parseLong(maxString) : System.currentTimeMillis();
-
         final String metric = request.getParameter("metric");
         final String callback = request.getParameter("callback");
 
-        final Map<String, List<Events.Point>> events = EventsFactory.get().get(PARTS, min, max, metric);
+        try {
+            final long min = minString != null ? Long.parseLong(minString) : EventsHolder.get().min();
+            final long max = maxString != null ? Long.parseLong(maxString) : System.currentTimeMillis();
 
-        System.out.println("[" + new Date(min) + " : " + new Date(max) + "] events " + events.size());
+            final Map<String, List<EventsImpl.Point>> events = EventsHolder.get().get(PARTS, min, max, metric);
 
-        response.getWriter().write(callback + "(" + new Gson().toJson(events) + ");");
+            System.out.println("[" + new Date(min) + " : " + new Date(max) + "] events " + events.size());
+            response.getWriter().write(callback + "(" + new Gson().toJson(events) + ");");
+        } catch (EventsNotReadyException e) {
+            response.getWriter().write(callback + "('restoring-in-progress');");
+        } catch (EventsLoadException e) {
+            response.getWriter().write(callback + "('restoring-failed');");
+        }
     }
 
 }

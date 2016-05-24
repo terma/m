@@ -16,21 +16,22 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
-import com.github.terma.fastselect.FastSelect;
-import com.github.terma.m.shared.Event;
+import com.github.terma.m.shared.Config;
 
-import java.io.File;
-import java.io.IOException;
+/**
+ * Thread safe
+ */
+class EventsHolder {
 
-public class RepoRestorePerformance {
+    private static final Events EVENTS;
 
-    public static void main(String[] args) throws IOException {
-        String dataPath = new File("data").getAbsolutePath();
-        Repo repo = new Repo(dataPath);
-        FastSelect<Event> fastSelect = EventsImpl.createFastSelect();
-        repo.readEvents(fastSelect);
-        System.out.println(repo.hashCode());
-        System.out.println(fastSelect.size());
+    static {
+        final String dataPath = Config.readConfig().dataPath;
+        EVENTS = new EventsLoader(new EventsFactory(dataPath));
+    }
+
+    public static Events get() {
+        return EVENTS;
     }
 
 }

@@ -28,10 +28,16 @@ public class SpaceServlet extends HttpServlet {
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
 
-        long space = EventsFactory.get().space();
-        int events = EventsFactory.get().events();
+        try {
+            long space = EventsHolder.get().space();
+            int events = EventsHolder.get().events();
 
-        response.getWriter().write("{\"space\": " + space + ", \"events\":" + events + "}");
+            response.getWriter().write("{\"space\": " + space + ", \"events\":" + events + "}");
+        } catch (EventsNotReadyException e) {
+            response.getWriter().write("\"restoring-in-progress\"");
+        }catch (EventsLoadException e) {
+            response.getWriter().write("\"restoring-failed\"");
+        }
     }
 
 }

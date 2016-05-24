@@ -39,7 +39,7 @@ public class NodeServlet extends HttpServlet {
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
         final List<Event> newEvents = GSON.fromJson(IOUtils.toString(request.getInputStream()), EVENTS_TYPE);
-        EventsFactory.get().add(newEvents);
+        EventsHolder.get().add(newEvents);
     }
 
 }

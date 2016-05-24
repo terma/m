@@ -16,21 +16,10 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
-import com.github.terma.fastselect.FastSelect;
-import com.github.terma.m.shared.Event;
+public class EventsLoadException extends RuntimeException {
 
-import java.io.File;
-import java.io.IOException;
-
-public class RepoRestorePerformance {
-
-    public static void main(String[] args) throws IOException {
-        String dataPath = new File("data").getAbsolutePath();
-        Repo repo = new Repo(dataPath);
-        FastSelect<Event> fastSelect = EventsImpl.createFastSelect();
-        repo.readEvents(fastSelect);
-        System.out.println(repo.hashCode());
-        System.out.println(fastSelect.size());
+    public EventsLoadException(Exception cause) {
+        super(cause);
     }
 
 }
