@@ -189,22 +189,39 @@ $(function () {
         });
     }
 
-    function checkSpace() {
-        $.getJSON('space', function (space) {
-            if (space === 'restoring-failed') {
-                $('#events').text('<b>error when restoring</b>');
-            } else if (space === 'restoring-in-progress') {
-                $('#events').text('<b>restoring</b>');
+    function checkStatus() {
+        $.getJSON('status', function (status) {
+            var message = '';
+
+            if (status.events.error === 'restoring-failed') {
+                message = 'Failed on event restoring!';
+            } else if (status.events.error === 'restoring-in-progress') {
+                message = 'Restoring events...';
             } else {
-                $('#events').text(space.events);
-                $('#space').text(Math.round(space.space / 1024 / 1024) + 'Mb');
+                message = 'Events: ' + status.events.count + ' on disk ' + Math.round(status.events.space / 1024 / 1024) + 'Mb';
             }
+            $('#events-status').text(message);
+
+            var total = 0;
+            var failed = 0;
+            var live = 0;
+            var starting = 0;
+
+            for (var host in status.nodes) {
+                total++;
+                if (status.nodes[host].status === 'STARTING') starting++;
+                if (status.nodes[host].status === 'FAILED') failed++;
+                if (status.nodes[host].status === 'LIVE') live++;
+            }
+            $('#nodes-status').text('Nodes: ' + live
+                + (starting > 0 ? ' starting ' + starting + '...' : '')
+                + (failed > 0 ? ' failed ' + failed + '!' : '') + '/' + total);
         });
     }
 
     function startSpaceChecker() {
-        window.setInterval(checkSpace, 5000);
-        checkSpace();
+        window.setInterval(checkStatus, 5000);
+        checkStatus();
     }
 
     $(document).ready(function () {
@@ -213,15 +230,18 @@ $(function () {
             charts.forEach(load);
             startSpaceChecker();
 
-            $('#clear').click(function () {
+            $('#clear-events').click(function () {
                 if (confirm('Do you want to remove all metric data?')) {
                     $.post('data/clear', {}, function () {
-                        charts.forEach(function (chart) {
-                            reload(chart)
-                        });
+                        window.location.reload(true);
                     });
                 }
             });
+
+            // $('#restart-nodes').click(function () {
+            //     $.post('nodes/restart', {}, function () {
+            //     });
+            // });
         });
     });
 

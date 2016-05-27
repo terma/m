@@ -40,6 +40,7 @@ public class NodeServlet extends HttpServlet {
             throws ServletException, IOException {
         final List<Event> newEvents = GSON.fromJson(IOUtils.toString(request.getInputStream()), EVENTS_TYPE);
         EventsHolder.get().add(newEvents);
+        NodeManager.INSTANCE.responseFromNode(request.getRemoteHost());
     }
 
 }

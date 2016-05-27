@@ -16,28 +16,42 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
-public class SpaceServlet extends HttpServlet {
+public class StatusServlet extends HttpServlet {
+
+    private final Gson gson = new Gson();
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
 
-        try {
-            long space = EventsHolder.get().space();
-            int events = EventsHolder.get().events();
+        Map<String, NodeManager.State> states = NodeManager.INSTANCE.getStatus();
 
-            response.getWriter().write("{\"space\": " + space + ", \"events\":" + events + "}");
+        JsonObject result = new JsonObject();
+        result.add("nodes", gson.toJsonTree(states));
+
+        JsonObject events = new JsonObject();
+        result.add("events", events);
+
+        try {
+            events.addProperty("space", EventsHolder.get().space());
+            events.addProperty("count", EventsHolder.get().events());
         } catch (EventsNotReadyException e) {
-            response.getWriter().write("\"restoring-in-progress\"");
-        }catch (EventsLoadException e) {
-            response.getWriter().write("\"restoring-failed\"");
+            events.addProperty("error", "restoring-in-progress");
+        } catch (EventsLoadException e) {
+            events.addProperty("error", "restoring-failed");
         }
+
+        response.getWriter().write(gson.toJson(result));
     }
 
 }

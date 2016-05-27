@@ -16,22 +16,19 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
-import com.github.terma.m.shared.Config;
-
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 public class ContextListener implements ServletContextListener {
 
-    @Override
-    public void contextInitialized(ServletContextEvent sce) {
-        final Config config = Config.readConfig();
-        asyncLoad(config);
-        NodeUtils.asyncStartNodes(config);
+    private static void asyncLoad() {
+        EventsHolder.get();
     }
 
-    private static void asyncLoad(Config config) {
-        EventsHolder.get();
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        asyncLoad();
+        NodeManager.INSTANCE.asyncStartNodes();
     }
 
     @Override
