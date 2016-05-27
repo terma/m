@@ -53,6 +53,16 @@
         <servlet-name>status</servlet-name>
         <url-pattern>/status</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>nodes-restart</servlet-name>
+        <servlet-class>com.github.terma.m.server.NodesRestartServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>nodes-restart</servlet-name>
+        <url-pattern>nodes/restart</url-pattern>
+    </servlet-mapping>
     
     <listener>
         <listener-class>com.github.terma.m.server.ContextListener</listener-class>

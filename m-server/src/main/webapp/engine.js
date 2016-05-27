@@ -238,10 +238,10 @@ $(function () {
                 }
             });
 
-            // $('#restart-nodes').click(function () {
-            //     $.post('nodes/restart', {}, function () {
-            //     });
-            // });
+            $('#restart-nodes').click(function () {
+                $.post('nodes/restart', {}, function () {
+                });
+            });
         });
     });
 
