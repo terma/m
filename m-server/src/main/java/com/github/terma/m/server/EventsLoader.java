@@ -113,6 +113,11 @@ class EventsLoader implements Events {
         return getEvents().events();
     }
 
+    @Override
+    public long sum(long min, long max, String metric) {
+        return 0;
+    }
+
     private Events getEvents() {
         lock.lock();
         try {
