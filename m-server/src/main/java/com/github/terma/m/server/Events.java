@@ -20,4 +20,6 @@ public interface Events {
 
     int events();
 
+    long sum(long min, long max, String metric);
+
 }

@@ -100,10 +100,7 @@ class EventsImpl implements Events {
     public Map<String, List<Point>> get(final int parts, final long min, final long max, String pattern) {
         READ_LOCK.lock();
         try {
-            final AbstractRequest[] where = {
-                    new LongBetweenRequest("timestamp", min, max - 1),
-                    new ShortRequest("metricCode", findMetricCodes(pattern))
-            };
+            final AbstractRequest[] where = createWhere(min, max, pattern);
             final DataCallback callback = new DataCallback(fastSelect, parts, min, max);
             fastSelect.select(where, callback);
             Map<Short, Acc[]> result = callback.getResult();
@@ -190,6 +187,25 @@ class EventsImpl implements Events {
         } finally {
             READ_LOCK.unlock();
         }
+    }
+
+    @Override
+    public long sum(long min, long max, String metric) {
+        READ_LOCK.lock();
+        try {
+            final SumCallback callback = new SumCallback(fastSelect);
+            fastSelect.select(createWhere(min, max, metric), callback);
+            return callback.getResult();
+        } finally {
+            READ_LOCK.unlock();
+        }
+    }
+
+    private AbstractRequest[] createWhere(long min, long max, String metric) {
+        return new AbstractRequest[]{
+                new LongBetweenRequest("timestamp", min, max - 1),
+                new ShortRequest("metricCode", findMetricCodes(metric))
+        };
     }
 
     @SuppressWarnings("WeakerAccess")

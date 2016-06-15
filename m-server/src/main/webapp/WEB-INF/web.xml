@@ -25,6 +25,16 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>data-sum</servlet-name>
+        <servlet-class>com.github.terma.m.server.SumDataServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>data-sum</servlet-name>
+        <url-pattern>/data/sum</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>clear</servlet-name>
         <servlet-class>com.github.terma.m.server.ClearServlet</servlet-class>
     </servlet>
