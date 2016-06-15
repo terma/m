@@ -29,7 +29,7 @@ public class EventsFiller {
     public static void main(String[] args) throws IOException {
         System.out.println("Start filling...");
         final long start = System.currentTimeMillis();
-        Events events = new Events("/Users/terma/Projects/m/data");
+        EventsImpl events = new EventsImpl("/Users/terma/Projects/m/data");
 
         final int count = 10000000;
         long timestamp = System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(30);
@@ -70,7 +70,7 @@ public class EventsFiller {
         System.out.println("Filled " + count + " in " + time + " msec");
     }
 
-    private static void flush(List<Event> buffer, Events events) throws IOException {
+    private static void flush(List<Event> buffer, EventsImpl events) throws IOException {
         events.add(buffer);
         buffer.clear();
     }

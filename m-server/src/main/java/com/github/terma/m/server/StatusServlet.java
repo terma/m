@@ -17,42 +17,41 @@ limitations under the License.
 package com.github.terma.m.server;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
-public class DataServlet extends HttpServlet {
+public class StatusServlet extends HttpServlet {
 
-    private static final int PARTS = 100;
+    private final Gson gson = new Gson();
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        final String minString = request.getParameter("min");
-        final String maxString = request.getParameter("max");
 
-        final String metric = request.getParameter("metric");
-        final String callback = request.getParameter("callback");
+        Map<String, NodeManager.State> states = NodeManager.INSTANCE.getStatus();
+
+        JsonObject result = new JsonObject();
+        result.add("nodes", gson.toJsonTree(states));
+
+        JsonObject events = new JsonObject();
+        result.add("events", events);
 
         try {
-            final long min = minString != null ? Long.parseLong(minString) : EventsHolder.get().min();
-            final long max = maxString != null ? Long.parseLong(maxString) : System.currentTimeMillis();
-
-            final Map<String, List<EventsImpl.Point>> events = EventsHolder.get().get(PARTS, min, max, metric);
-
-            System.out.println("[" + new Date(min) + " : " + new Date(max) + "] events " + events.size());
-            response.getWriter().write(callback + "(" + new Gson().toJson(events) + ");");
+            events.addProperty("space", EventsHolder.get().space());
+            events.addProperty("count", EventsHolder.get().events());
         } catch (EventsNotReadyException e) {
-            response.getWriter().write(callback + "('restoring-in-progress');");
+            events.addProperty("error", "restoring-in-progress");
         } catch (EventsLoadException e) {
-            response.getWriter().write(callback + "('restoring-failed');");
+            events.addProperty("error", "restoring-failed");
         }
+
+        response.getWriter().write(gson.toJson(result));
     }
 
 }

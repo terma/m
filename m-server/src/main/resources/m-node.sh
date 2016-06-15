@@ -10,9 +10,9 @@ SIGAR_NATIVE_PATH="native"
 
 echo "Killing existent instances of m-node (if any)..."
 if [ "$(uname)" == "Darwin" ]; then
-    ps aux | grep ${PROCESS_MARKER} | grep -v grep | awk '{print $2}' | xargs kill
+    ps aux | grep ${PROCESS_MARKER} | grep -v grep | awk '{print $2}' | xargs kill -9
 else
-    ps aux | grep ${PROCESS_MARKER} | grep -v grep | awk '{print $2}' | xargs -r kill
+    ps aux | grep ${PROCESS_MARKER} | grep -v grep | awk '{print $2}' | xargs -r kill -9
 fi
 sleep 5 # just to ensure that port cleared
 echo "m-node stopped"

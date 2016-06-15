@@ -25,6 +25,16 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>data-sum</servlet-name>
+        <servlet-class>com.github.terma.m.server.SumDataServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>data-sum</servlet-name>
+        <url-pattern>/data/sum</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>clear</servlet-name>
         <servlet-class>com.github.terma.m.server.ClearServlet</servlet-class>
     </servlet>
@@ -45,13 +55,23 @@
     </servlet-mapping>
 
     <servlet>
-        <servlet-name>space</servlet-name>
-        <servlet-class>com.github.terma.m.server.SpaceServlet</servlet-class>
+        <servlet-name>status</servlet-name>
+        <servlet-class>com.github.terma.m.server.StatusServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>space</servlet-name>
-        <url-pattern>/space</url-pattern>
+        <servlet-name>status</servlet-name>
+        <url-pattern>/status</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>nodes-restart</servlet-name>
+        <servlet-class>com.github.terma.m.server.NodesRestartServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>nodes-restart</servlet-name>
+        <url-pattern>nodes/restart</url-pattern>
     </servlet-mapping>
     
     <listener>

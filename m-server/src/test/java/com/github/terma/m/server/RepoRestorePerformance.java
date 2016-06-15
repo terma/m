@@ -27,7 +27,7 @@ public class RepoRestorePerformance {
     public static void main(String[] args) throws IOException {
         String dataPath = new File("data").getAbsolutePath();
         Repo repo = new Repo(dataPath);
-        FastSelect<Event> fastSelect = Events.createFastSelect();
+        FastSelect<Event> fastSelect = EventsImpl.createFastSelect();
         repo.readEvents(fastSelect);
         System.out.println(repo.hashCode());
         System.out.println(fastSelect.size());

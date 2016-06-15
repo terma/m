@@ -16,24 +16,9 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+public class EventsNotReadyException extends RuntimeException {
 
-public class ContextListener implements ServletContextListener {
-
-    private static void asyncLoad() {
-        EventsHolder.get();
-    }
-
-    @Override
-    public void contextInitialized(ServletContextEvent sce) {
-        asyncLoad();
-        NodeManager.INSTANCE.asyncStartNodes();
-    }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-
+    public EventsNotReadyException() {
     }
 
 }

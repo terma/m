@@ -22,16 +22,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-public class SpaceServlet extends HttpServlet {
+public class SumDataServlet extends HttpServlet {
 
     @Override
     protected void doGet(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
+        final String minString = request.getParameter("min");
+        final String maxString = request.getParameter("max");
 
-        long space = EventsFactory.get().space();
-        int events = EventsFactory.get().events();
+        final String metric = request.getParameter("metric");
 
-        response.getWriter().write("{\"space\": " + space + ", \"events\":" + events + "}");
+        try {
+            final long min = minString != null ? Long.parseLong(minString) : EventsHolder.get().min();
+            final long max = maxString != null ? Long.parseLong(maxString) : System.currentTimeMillis();
+
+            response.getWriter().print(EventsHolder.get().sum(min, max, metric));
+        } catch (EventsNotReadyException e) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Restoring...");
+        } catch (EventsLoadException e) {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, e.getMessage());
+        }
     }
 
 }

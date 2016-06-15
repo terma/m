@@ -21,8 +21,12 @@ import com.github.terma.m.node.Node;
 import com.github.terma.m.shared.Config;
 import com.github.terma.m.shared.NodeConfig;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 
 public class LocalNode {
+
+    private static final AtomicBoolean STARTED = new AtomicBoolean(false);
 
     public static void start(final Config server, final NodeConfig nodeConfig) {
         nodeConfig.serverHost = server.host;
@@ -33,7 +37,8 @@ public class LocalNode {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
-                Node.run(nodeConfig);
+                if (STARTED.compareAndSet(false, true)) Node.run(nodeConfig);
+                else System.out.println("Local node can't be start twice. Skip.");
             }
         });
 

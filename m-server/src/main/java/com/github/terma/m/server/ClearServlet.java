@@ -27,7 +27,7 @@ public class ClearServlet extends HttpServlet {
     @Override
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
             throws ServletException, IOException {
-        EventsFactory.get().clear();
+        EventsHolder.get().clear();
     }
 
 }

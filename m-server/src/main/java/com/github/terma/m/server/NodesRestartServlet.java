@@ -16,24 +16,18 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
-public class ContextListener implements ServletContextListener {
-
-    private static void asyncLoad() {
-        EventsHolder.get();
-    }
+public class NodesRestartServlet extends HttpServlet {
 
     @Override
-    public void contextInitialized(ServletContextEvent sce) {
-        asyncLoad();
+    protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
+            throws ServletException, IOException {
         NodeManager.INSTANCE.asyncStartNodes();
-    }
-
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-
     }
 
 }

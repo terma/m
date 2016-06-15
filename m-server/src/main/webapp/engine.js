@@ -39,20 +39,24 @@ $(function () {
         var maxParameter = max != void 0 ? '&max=' + max : '';
 
         $.getJSON('data?metric=' + encodeURIComponent(chart.metric) + minParameter + maxParameter + '&callback=?', function (data) {
-            for (var metric in data) {
-                if (!metric) continue;
+            if (data === 'restoring-failed' || data === 'restoring-in-progress') {
 
-                var series = void 0;
-                for (var s = 0; s < highchart.series.length; s++) {
-                    if (highchart.series[s].name === metric) series = highchart.series[s];
+            } else {
+                for (var metric in data) {
+                    if (!metric) continue;
+
+                    var series = void 0;
+                    for (var s = 0; s < highchart.series.length; s++) {
+                        if (highchart.series[s].name === metric) series = highchart.series[s];
+                    }
+
+                    var seriesData = [];
+                    data[metric].forEach(function (tAndV) {
+                        seriesData.push(convertDataToPoint(tAndV));
+                    });
+
+                    series.setData(seriesData);
                 }
-
-                var seriesData = [];
-                data[metric].forEach(function (tAndV) {
-                    seriesData.push(convertDataToPoint(tAndV));
-                });
-
-                series.setData(seriesData);
             }
         });
     }
@@ -185,16 +189,39 @@ $(function () {
         });
     }
 
-    function checkSpace() {
-        $.getJSON('space', function (space) {
-            $('#events').text(space.events);
-            $('#space').text(Math.round(space.space / 1024 / 1024) + 'Mb');
+    function checkStatus() {
+        $.getJSON('status', function (status) {
+            var message = '';
+
+            if (status.events.error === 'restoring-failed') {
+                message = 'Failed on event restoring!';
+            } else if (status.events.error === 'restoring-in-progress') {
+                message = 'Restoring events...';
+            } else {
+                message = 'Events: ' + status.events.count + ' on disk ' + Math.round(status.events.space / 1024 / 1024) + 'Mb';
+            }
+            $('#events-status').text(message);
+
+            var total = 0;
+            var failed = 0;
+            var live = 0;
+            var starting = 0;
+
+            for (var host in status.nodes) {
+                total++;
+                if (status.nodes[host].status === 'STARTING') starting++;
+                if (status.nodes[host].status === 'FAILED') failed++;
+                if (status.nodes[host].status === 'LIVE') live++;
+            }
+            $('#nodes-status').text('Nodes: ' + live
+                + (starting > 0 ? ' starting ' + starting + '...' : '')
+                + (failed > 0 ? ' failed ' + failed + '!' : '') + '/' + total);
         });
     }
 
     function startSpaceChecker() {
-        window.setInterval(checkSpace, 5000);
-        checkSpace();
+        window.setInterval(checkStatus, 5000);
+        checkStatus();
     }
 
     $(document).ready(function () {
@@ -203,14 +230,17 @@ $(function () {
             charts.forEach(load);
             startSpaceChecker();
 
-            $('#clear').click(function () {
+            $('#clear-events').click(function () {
                 if (confirm('Do you want to remove all metric data?')) {
                     $.post('data/clear', {}, function () {
-                        charts.forEach(function (chart) {
-                            reload(chart)
-                        });
+                        window.location.reload(true);
                     });
                 }
+            });
+
+            $('#restart-nodes').click(function () {
+                $.post('nodes/restart', {}, function () {
+                });
             });
         });
     });

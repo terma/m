@@ -16,24 +16,29 @@ limitations under the License.
 */
 package com.github.terma.m.server;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import com.github.terma.fastselect.FastSelect;
+import com.github.terma.fastselect.callbacks.ArrayLayoutCallback;
+import com.github.terma.fastselect.data.LongData;
+import com.github.terma.m.shared.Event;
 
-public class ContextListener implements ServletContextListener {
+@SuppressWarnings("WeakerAccess")
+class SumCallback implements ArrayLayoutCallback {
 
-    private static void asyncLoad() {
-        EventsHolder.get();
+    private final long[] values;
+
+    private long result;
+
+    public SumCallback(final FastSelect<Event> fastSelect) {
+        this.values = ((LongData) fastSelect.getColumnsByNames().get("value").data).data;
     }
 
     @Override
-    public void contextInitialized(ServletContextEvent sce) {
-        asyncLoad();
-        NodeManager.INSTANCE.asyncStartNodes();
+    public void data(int position) {
+        result += values[position];
     }
 
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-
+    public long getResult() {
+        return result;
     }
 
 }
